@@ -27,6 +27,9 @@ struct NewDownloadView: View {
     // Advanced options — args built by AdvancedOptionsView
     @State private var advancedArgs: [String] = []
 
+    // Transcript options — args built by TranscriptOptionsView
+    @State private var transcriptArgs: [String] = []
+
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
@@ -41,7 +44,7 @@ struct NewDownloadView: View {
         .sheet(isPresented: $showPlaylistPicker) {
             if let playlist = playlistInfo {
                 PlaylistPickerView(playlist: playlist, isPresented: $showPlaylistPicker) { entries, modeArgs in
-                    let combinedArgs = advancedArgs + modeArgs
+                    let combinedArgs = transcriptArgs + advancedArgs + modeArgs
                     for entry in entries {
                         manager.enqueue(
                             url: entry.url,
@@ -343,6 +346,9 @@ struct NewDownloadView: View {
                 .pickerStyle(.menu)
             }
 
+            // Transcript/subtitle options (contextual — only when subtitles available)
+            TranscriptOptionsView(mediaInfo: info, transcriptArgs: $transcriptArgs)
+
             // Advanced options
             DisclosureGroup("Advanced Options") {
                 AdvancedOptionsView(args: $advancedArgs)
@@ -491,7 +497,7 @@ struct NewDownloadView: View {
             formatId: selectedFormat?.id,
             formatDescription: selectedFormat?.displayName,
             preset: selectedPreset,
-            additionalArgs: advancedArgs,
+            additionalArgs: transcriptArgs + advancedArgs,
             thumbnailURL: mediaInfo.thumbnailURL?.absoluteString,
             extractor: mediaInfo.extractor,
             duration: mediaInfo.duration
@@ -501,6 +507,7 @@ struct NewDownloadView: View {
         urlText = ""
         self.mediaInfo = nil
         selectedFormat = nil
+        transcriptArgs = []
     }
 
     private func startBatchDownload() {

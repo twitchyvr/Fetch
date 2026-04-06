@@ -32,6 +32,7 @@
 		BF4978831B551D7016E5DF7B /* DownloadQueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2204AA8F92B296FE42E112 /* DownloadQueueView.swift */; };
 		CC20404951AB80477EA91C7A /* NewDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4E5FA37B9156D3146D1561 /* NewDownloadView.swift */; };
 		D5B9AFEE091C6D5F3389FF81 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC91BF95A053821F8DB23D3F /* StatsView.swift */; };
+		D9A8B648A1EB467679FA8F04 /* TranscriptOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECACC22DF7BE18756DACF65F /* TranscriptOptionsView.swift */; };
 		E95B726F299DDC86547F81B4 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2015C2DFB9042CD95C78E28 /* NotificationService.swift */; };
 		EED7DA11CD8FA1102C2DD1B3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F8777C9ABE883DC2DE1A33 /* SettingsView.swift */; };
 		F3FD90290BB6125BD843AE6F /* FormatPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C2623AAB3EB28232466FDDE /* FormatPickerView.swift */; };
@@ -84,6 +85,7 @@
 		D793FA63DCCCCC5C1490FB6F /* Preset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preset.swift; sourceTree = "<group>"; };
 		DC349A2094125985259419FA /* FetchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FetchTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC91BF95A053821F8DB23D3F /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
+		ECACC22DF7BE18756DACF65F /* TranscriptOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptOptionsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -148,6 +150,7 @@
 				03F699F3560CD95002F95A2D /* SidebarView.swift */,
 				DC91BF95A053821F8DB23D3F /* StatsView.swift */,
 				7827C9F6121D8E7248BFB6F0 /* TipBanner.swift */,
+				ECACC22DF7BE18756DACF65F /* TranscriptOptionsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -298,6 +301,7 @@
 				469A19EBEE2928AB5C294D4F /* SidebarView.swift in Sources */,
 				D5B9AFEE091C6D5F3389FF81 /* StatsView.swift in Sources */,
 				2165D1FD7509CD7D0B03D34B /* TipBanner.swift in Sources */,
+				D9A8B648A1EB467679FA8F04 /* TranscriptOptionsView.swift in Sources */,
 				3EB84EE80BE3BC1E29AA4922 /* URLParser.swift in Sources */,
 				8A23B88E7E891442E1235D64 /* YTDLPService.swift in Sources */,
 			);
