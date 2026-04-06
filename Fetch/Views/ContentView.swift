@@ -25,6 +25,8 @@ struct ContentView: View {
                     LibraryView()
                 case .stats:
                     StatsView()
+                case .ffmpegLab:
+                    FfmpegLabView()
                 case .presets:
                     PresetEditorView()
                 }
@@ -111,6 +113,7 @@ enum SidebarSection: String, Hashable, CaseIterable {
     case history = "History"
     case library = "Library"
     case stats = "Stats"
+    case ffmpegLab = "FFmpeg Lab"
     case presets = "Presets"
 
     var icon: String {
@@ -120,6 +123,7 @@ enum SidebarSection: String, Hashable, CaseIterable {
         case .history: "clock"
         case .library: "books.vertical.fill"
         case .stats: "chart.bar.fill"
+        case .ffmpegLab: "flask"
         case .presets: "slider.horizontal.3"
         }
     }
