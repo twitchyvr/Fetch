@@ -11,6 +11,7 @@ struct ContentView: View {
     var body: some View {
         NavigationSplitView {
             SidebarView(selection: $selectedSection, activeCount: manager.activeTasks.count)
+                .navigationSplitViewColumnWidth(min: 200, ideal: 220, max: 280)
         } detail: {
             Group {
                 switch selectedSection {
@@ -27,8 +28,7 @@ struct ContentView: View {
             .frame(minWidth: 500)
             .animation(.smooth(duration: 0.25), value: selectedSection)
         }
-        .navigationSplitViewColumnWidth(min: 180, ideal: 200, max: 260)
-        .frame(minWidth: 700, minHeight: 400)
+        .frame(minWidth: 760, minHeight: 480)
         .onAppear {
             manager.modelContext = modelContext
             clipboardMonitor.onURLDetected = { url in
