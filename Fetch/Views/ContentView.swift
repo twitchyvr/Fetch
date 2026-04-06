@@ -25,6 +25,7 @@ struct ContentView: View {
                 }
             }
             .frame(minWidth: 500)
+            .animation(.smooth(duration: 0.25), value: selectedSection)
         }
         .navigationSplitViewColumnWidth(min: 180, ideal: 200, max: 260)
         .frame(minWidth: 700, minHeight: 400)

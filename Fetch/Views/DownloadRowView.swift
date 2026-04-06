@@ -24,7 +24,7 @@ struct DownloadRowView: View {
             // Progress bar (only during download/postprocess)
             if task.status == .downloading || task.status == .postprocessing {
                 ProgressView(value: task.progress, total: 100)
-                    .tint(task.status == .postprocessing ? .orange : .accentColor)
+                    .progressViewStyle(ShimmerProgressViewStyle())
                     .accessibilityHidden(true)
 
                 HStack {
