@@ -22,24 +22,27 @@ Fetch wraps yt-dlp with a polished native interface — paste a URL, pick a form
 
 ## Features
 
-- **Native macOS app** — SwiftUI, Apple HIG compliant, feels like a first-party utility
+- **Native macOS app** — SwiftUI, Apple HIG compliant, premium gradient UI
+- **FFmpeg Lab** — 8 operation panels: Remux, Audio, Video, Filters, Trim, Extract, Metadata, AI Presets. Process any file, not just downloads
+- **Playlist support** — auto-detect playlists, 5 download modes (Best/Audio/Video/Transcript/Audio+Transcript), audio format picker, organized in subfolders
+- **Transcript support** — 158+ subtitle languages, SRT/VTT/ASS formats, embed or separate file, auto-generated captions
+- **AI export presets** — one-click: Whisper-ready WAV, Transcript Only, Vision AI frames, Music Lossless FLAC
 - **Stats dashboard** — Swift Charts: downloads by extractor, format distribution, activity timeline
-- **AI-friendly suggestions** — contextual tips for Whisper, podcast AI, auto-subs, SponsorBlock
-- **Advanced options** — subtitles, SponsorBlock, cookies, speed limit, output template, proxy
+- **Media Library** — catalog with sort/filter/search, list+grid views, file-exists tracking
+- **Scheduled downloads** — queue for later with date/time countdown
 - **Batch downloads** — paste multiple URLs, drop text/JSON files, smart URL extraction
+- **Advanced options** — subtitles, SponsorBlock, cookies, proxy, auth, post-processing, chapter splitting
+- **AI suggestions** — contextual tips for Whisper, podcast AI, auto-subs, SponsorBlock
 - **Interactive onboarding** — 4-step walkthrough with Skip option, rotating tips
 - **Dynamic format discovery** — queries yt-dlp per-URL for available formats, resolutions, and codecs
-- **Download queue** — concurrent downloads with shimmer progress bars and thumbnail previews
+- **Download queue** — concurrent downloads with gradient progress bars, thumbnail previews, cancel/retry
 - **macOS notifications** — banner notifications on download completion with "Open" and "Show in Finder" actions
 - **Dock badge** — shows active download count
 - **Clipboard monitoring** — detects media URLs copied to clipboard and offers one-click download
 - **Drag-and-drop** — drop URLs or text files from any browser directly into the app
-- **File tracking** — history detects when downloaded files are deleted or moved
-- **Download presets** — save format/quality/output configurations for different use cases
-- **Download history** — SwiftData-backed history with search, thumbnails, relative dates
-- **Menu bar presence** — monitor downloads from the menu bar (window-style MenuBarExtra)
+- **Download presets** — 6 built-in + 5 AI presets + custom presets
+- **Download history** — SwiftData-backed with search, thumbnails, relative dates, file tracking
 - **Full accessibility** — VoiceOver labels, WCAG AA contrast, keyboard navigation
-- **Option discovery** — parses `yt-dlp --help` at runtime to expose all available options
 - **1800+ supported sites** — anything yt-dlp supports, Fetch supports
 
 ## Requirements
