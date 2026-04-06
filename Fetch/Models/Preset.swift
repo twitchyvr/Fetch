@@ -60,10 +60,31 @@ final class Preset {
         }
 
         if !extraArguments.isEmpty {
-            args += extraArguments.split(separator: " ").map(String.init)
+            let parsed = extraArguments.split(separator: " ").map(String.init)
+            args += Self.filterDangerousFlags(parsed)
         }
 
         return args
+    }
+
+    /// Deny-list yt-dlp flags that can execute arbitrary commands or access arbitrary files.
+    static func filterDangerousFlags(_ args: [String]) -> [String] {
+        let dangerous: Set<String> = [
+            "--exec", "--exec-before-download",
+            "--batch-file", "--config-locations",
+            "--plugin-dirs",
+        ]
+        var filtered: [String] = []
+        var skipNext = false
+        for arg in args {
+            if skipNext { skipNext = false; continue }
+            if dangerous.contains(arg) {
+                skipNext = true // skip the flag AND its value
+                continue
+            }
+            filtered.append(arg)
+        }
+        return filtered
     }
 
     static var builtIn: [Preset] {
