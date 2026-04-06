@@ -138,7 +138,12 @@ final class DownloadManager {
                     formatId: task.formatId,
                     outputDirectory: task.outputDirectory,
                     outputTemplate: task.outputTemplate,
-                    extraArgs: extraArgs
+                    extraArgs: extraArgs,
+                    onProcessStart: { process in
+                        Task { @MainActor in
+                            task.processHandle = process
+                        }
+                    }
                 ) { progress in
                     Task { @MainActor in
                         task.progress = progress.percentage
@@ -157,6 +162,10 @@ final class DownloadManager {
                 }
 
                 await MainActor.run {
+                    guard task.status != .cancelled else {
+                        self?.processQueue()
+                        return
+                    }
                     task.status = .completed
                     task.outputPath = outputPath
                     task.progress = 100
