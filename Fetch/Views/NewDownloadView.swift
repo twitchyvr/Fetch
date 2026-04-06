@@ -496,9 +496,21 @@ struct NewDownloadView: View {
         error = nil
         mediaInfo = nil
         playlistInfo = nil
+        contentInsights = []
         isLoading = true
 
-        let url = urlText
+        let url = urlText.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Defense-in-depth: only allow http/https URLs
+        guard let parsed = URL(string: url),
+              let scheme = parsed.scheme,
+              ["http", "https"].contains(scheme.lowercased()),
+              parsed.host != nil
+        else {
+            error = "Invalid URL. Only http:// and https:// URLs are supported."
+            isLoading = false
+            return
+        }
         fetchTask = Task {
             do {
                 // Try playlist detection first
