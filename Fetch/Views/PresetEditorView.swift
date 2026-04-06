@@ -19,6 +19,13 @@ struct PresetEditorView: View {
                     }
                 }
 
+                Section("AI & Research") {
+                    ForEach(Preset.aiBuiltIn, id: \.name) { preset in
+                        Label(preset.name, systemImage: "cpu")
+                            .tag(preset)
+                    }
+                }
+
                 if !presets.isEmpty {
                     Section("Custom") {
                         ForEach(presets) { preset in
