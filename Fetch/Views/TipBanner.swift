@@ -3,10 +3,9 @@ import SwiftUI
 // MARK: - Tip Banner
 
 /// A rotating tip banner for empty states that cycles through helpful hints.
+/// Uses declarative .onReceive(Timer.publish) to tie timer lifecycle to the view.
 struct TipBanner: View {
     @State private var currentTipIndex = 0
-    @State private var timer: Timer?
-    @State private var isVisible = true
 
     private static let tips: [String] = [
         "Did you know? Fetch supports 1,800+ sites via yt-dlp.",
@@ -17,6 +16,8 @@ struct TipBanner: View {
         "Drag and drop URLs directly into Fetch to start downloading.",
         "Fetch auto-detects URLs copied to your clipboard.",
     ]
+
+    private let timer = Timer.publish(every: 8.0, on: .main, in: .common).autoconnect()
 
     var body: some View {
         HStack(spacing: Design.Spacing.md) {
@@ -29,28 +30,16 @@ struct TipBanner: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
-                .id(currentTipIndex) // force transition on change
+                .id(currentTipIndex)
                 .transition(.opacity)
         }
         .padding(.horizontal, Design.Spacing.lg)
         .padding(.vertical, Design.Spacing.md)
         .glassBackground()
         .animation(.easeInOut(duration: 0.5), value: currentTipIndex)
-        .onAppear { startTimer() }
-        .onDisappear { stopTimer() }
-        .accessibilityElement(children: .combine)
-    }
-
-    private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 8.0, repeats: true) { _ in
-            Task { @MainActor in
-                currentTipIndex = (currentTipIndex + 1) % Self.tips.count
-            }
+        .onReceive(timer) { _ in
+            currentTipIndex = (currentTipIndex + 1) % Self.tips.count
         }
-    }
-
-    private func stopTimer() {
-        timer?.invalidate()
-        timer = nil
+        .accessibilityElement(children: .combine)
     }
 }
