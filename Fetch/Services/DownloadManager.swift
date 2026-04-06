@@ -65,6 +65,10 @@ final class DownloadManager {
         try await service.getPlaylistInfo(for: url)
     }
 
+    func search(query: String) async throws -> PlaylistInfo {
+        try await service.search(query: query)
+    }
+
     // MARK: - Download Queue
 
     func enqueue(

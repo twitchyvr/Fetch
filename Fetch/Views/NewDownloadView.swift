@@ -513,8 +513,15 @@ struct NewDownloadView: View {
         }
         fetchTask = Task {
             do {
-                // Try playlist detection first
-                if let playlist = try await manager.fetchPlaylistInfo(for: url) {
+                // Check if it's a search URL first
+                if let searchQuery = YTDLPService.isSearchURL(url) {
+                    let results = try await manager.search(query: searchQuery)
+                    guard !Task.isCancelled else { return }
+                    playlistInfo = results
+                    showPlaylistPicker = true
+                }
+                // Try playlist detection
+                else if let playlist = try await manager.fetchPlaylistInfo(for: url) {
                     guard !Task.isCancelled else { return }
                     playlistInfo = playlist
                     showPlaylistPicker = true
