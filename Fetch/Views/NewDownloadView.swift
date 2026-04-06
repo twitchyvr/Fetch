@@ -24,6 +24,9 @@ struct NewDownloadView: View {
     @State private var playlistInfo: PlaylistInfo?
     @State private var showPlaylistPicker = false
 
+    // NLP insights (computed off main thread)
+    @State private var contentInsights: [TextAnalysisService.ContentInsight] = []
+
     // Advanced options — args built by AdvancedOptionsView
     @State private var advancedArgs: [String] = []
 
@@ -377,19 +380,14 @@ struct NewDownloadView: View {
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Design.Radius.standard))
             }
 
-            // AI Content Insights (NaturalLanguage framework)
-            let insights = TextAnalysisService.generateInsights(
-                title: info.title,
-                description: info.description,
-                uploader: info.uploader
-            )
-            if !insights.isEmpty {
+            // AI Content Insights (computed off main thread)
+            if !contentInsights.isEmpty {
                 VStack(alignment: .leading, spacing: Design.Spacing.sm) {
                     Label("Content Insights", systemImage: "cpu")
                         .font(.caption.bold())
                         .foregroundStyle(Color.accentColor)
 
-                    ForEach(insights) { insight in
+                    ForEach(contentInsights) { insight in
                         HStack(alignment: .top, spacing: Design.Spacing.sm) {
                             Image(systemName: insight.icon)
                                 .font(.caption)
@@ -512,6 +510,13 @@ struct NewDownloadView: View {
                     let info = try await manager.fetchMediaInfo(for: url)
                     guard !Task.isCancelled else { return }
                     mediaInfo = info
+                    // Compute NLP insights off main thread
+                    let title = info.title
+                    let desc = info.description
+                    let uploader = info.uploader
+                    contentInsights = await Task.detached {
+                        TextAnalysisService.generateInsights(title: title, description: desc, uploader: uploader)
+                    }.value
                 }
             } catch {
                 guard !Task.isCancelled else { return }
@@ -539,6 +544,7 @@ struct NewDownloadView: View {
         // Reset for next download
         urlText = ""
         self.mediaInfo = nil
+        contentInsights = []
         selectedFormat = nil
         transcriptArgs = []
     }
