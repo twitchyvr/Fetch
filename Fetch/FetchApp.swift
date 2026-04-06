@@ -26,6 +26,7 @@ struct FetchApp: App {
                 }
                 .sheet(isPresented: $showOnboarding) {
                     OnboardingView(isPresented: $showOnboarding)
+                        .interactiveDismissDisabled()
                 }
         }
         .modelContainer(for: [Download.self, Preset.self])
