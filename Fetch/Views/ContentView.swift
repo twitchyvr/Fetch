@@ -21,6 +21,8 @@ struct ContentView: View {
                     DownloadQueueView()
                 case .history:
                     HistoryView()
+                case .library:
+                    LibraryView()
                 case .stats:
                     StatsView()
                 case .presets:
@@ -107,6 +109,7 @@ enum SidebarSection: String, Hashable, CaseIterable {
     case newDownload = "New Download"
     case queue = "Queue"
     case history = "History"
+    case library = "Library"
     case stats = "Stats"
     case presets = "Presets"
 
@@ -115,6 +118,7 @@ enum SidebarSection: String, Hashable, CaseIterable {
         case .newDownload: "plus.circle"
         case .queue: "arrow.down.circle"
         case .history: "clock"
+        case .library: "books.vertical.fill"
         case .stats: "chart.bar.fill"
         case .presets: "slider.horizontal.3"
         }
