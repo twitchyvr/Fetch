@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import CoreSpotlight
 
 @main
 struct FetchApp: App {
@@ -18,6 +19,7 @@ struct FetchApp: App {
                 .environment(downloadManager)
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
                     downloadManager.cancelAll()
+                    cleanupSpotlightIndex()
                 }
                 .onAppear {
                     if !hasCompletedOnboarding {
@@ -56,6 +58,22 @@ struct FetchApp: App {
                 .environment(downloadManager)
         }
         .menuBarExtraStyle(.window)
+    }
+
+    /// Remove Spotlight index entries whose files no longer exist on disk
+    private func cleanupSpotlightIndex() {
+        let outputDir = downloadManager.defaultOutputDirectory
+        let expanded = NSString(string: outputDir).expandingTildeInPath
+        let fm = FileManager.default
+
+        guard let enumerator = fm.enumerator(atPath: expanded) else { return }
+
+        var validPaths: [String] = []
+        while let file = enumerator.nextObject() as? String {
+            validPaths.append((expanded as NSString).appendingPathComponent(file))
+        }
+
+        SpotlightService.shared.removeStaleItems(validPaths: validPaths)
     }
 }
 

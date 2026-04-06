@@ -294,6 +294,16 @@ final class DownloadManager {
         )
         context.insert(download)
         try? context.save()
+
+        // Index in Spotlight for macOS search
+        SpotlightService.shared.indexDownload(
+            title: download.title,
+            url: download.url,
+            outputPath: download.outputPath,
+            extractor: download.extractor,
+            duration: download.duration,
+            thumbnailURL: download.thumbnailURL
+        )
     }
 }
 
