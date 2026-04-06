@@ -101,7 +101,7 @@ struct ClipboardBanner: View {
         }
         .padding(Design.Spacing.md)
         .glassBackground()
-        .shadow(color: Design.Colors.cardShadow, radius: 10, y: 4)
+        .shadow(color: Design.Colors.cardShadowFar, radius: 12, y: 4)
         .padding()
         .accessibilityElement(children: .combine)
     }
