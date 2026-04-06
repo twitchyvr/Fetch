@@ -41,6 +41,18 @@ struct DownloadRowView: View {
                     .lineLimit(1)
                     .tracking(-0.2)
 
+                // Scheduled time
+                if task.status == .scheduled, let scheduledFor = task.scheduledFor {
+                    HStack(spacing: 4) {
+                        Image(systemName: "calendar.badge.clock")
+                            .font(.caption)
+                            .foregroundStyle(.purple)
+                        Text("Scheduled for \(scheduledFor, style: .relative)")
+                            .font(.caption)
+                            .foregroundStyle(.purple)
+                    }
+                }
+
                 // Progress bar
                 if task.status == .downloading || task.status == .postprocessing {
                     ProgressView(value: task.progress, total: 100)
@@ -138,6 +150,7 @@ struct DownloadRowView: View {
 
     private var statusColor: Color {
         switch task.status {
+        case .scheduled: .purple
         case .queued: .secondary
         case .downloading: Color.accentColor
         case .postprocessing: .orange

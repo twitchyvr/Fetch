@@ -79,7 +79,8 @@ final class DownloadManager {
         duration: Double? = nil,
         playlistTitle: String? = nil,
         playlistIndex: Int? = nil,
-        playlistId: String? = nil
+        playlistId: String? = nil,
+        scheduledFor: Date? = nil
     ) {
         var combinedArgs = preset?.asArguments() ?? []
         combinedArgs += additionalArgs
@@ -106,11 +107,26 @@ final class DownloadManager {
             duration: duration,
             playlistTitle: playlistTitle,
             playlistIndex: playlistIndex,
-            playlistId: playlistId
+            playlistId: playlistId,
+            scheduledFor: scheduledFor
         )
 
-        activeTasks.append(task)
-        processQueue()
+        if let scheduledFor {
+            // Scheduled download — set to scheduled status, start timer
+            task.status = .scheduled
+            activeTasks.append(task)
+            let delay = max(scheduledFor.timeIntervalSinceNow, 0)
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(delay))
+                guard task.status == .scheduled else { return }
+                task.status = .queued
+                processQueue()
+                updateDockBadge()
+            }
+        } else {
+            activeTasks.append(task)
+            processQueue()
+        }
         updateDockBadge()
     }
 
@@ -298,6 +314,7 @@ final class DownloadTask: Identifiable, @unchecked Sendable {
     let playlistTitle: String?
     let playlistIndex: Int?
     let playlistId: String?
+    let scheduledFor: Date?
     let dateCreated = Date()
 
     var title: String?
@@ -323,7 +340,8 @@ final class DownloadTask: Identifiable, @unchecked Sendable {
         duration: Double? = nil,
         playlistTitle: String? = nil,
         playlistIndex: Int? = nil,
-        playlistId: String? = nil
+        playlistId: String? = nil,
+        scheduledFor: Date? = nil
     ) {
         self.url = url
         self.title = title
@@ -338,13 +356,15 @@ final class DownloadTask: Identifiable, @unchecked Sendable {
         self.playlistTitle = playlistTitle
         self.playlistIndex = playlistIndex
         self.playlistId = playlistId
+        self.scheduledFor = scheduledFor
     }
 
     enum DownloadTaskStatus: String {
-        case queued, downloading, postprocessing, completed, failed, cancelled
+        case scheduled, queued, downloading, postprocessing, completed, failed, cancelled
 
         var label: String {
             switch self {
+            case .scheduled: "Scheduled"
             case .queued: "Queued"
             case .downloading: "Downloading"
             case .postprocessing: "Processing"
@@ -356,6 +376,7 @@ final class DownloadTask: Identifiable, @unchecked Sendable {
 
         var icon: String {
             switch self {
+            case .scheduled: "calendar.badge.clock"
             case .queued: "clock"
             case .downloading: "arrow.down.circle"
             case .postprocessing: "gearshape.2"
