@@ -41,7 +41,7 @@ struct PresetEditorView: View {
                 }
             }
             .listStyle(.sidebar)
-            .frame(minWidth: 180)
+            .frame(minWidth: 180, minHeight: 400)
 
             // Detail
             if let preset = selectedPreset {
