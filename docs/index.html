@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch — Native macOS yt-dlp Frontend</title>
+    <meta name="description" content="A native macOS frontend for yt-dlp, built with SwiftUI. Download videos from 1800+ sites with a polished interface.">
+    <style>
+        :root {
+            --apple-blue: #0071e3;
+            --bright-blue: #2997ff;
+            --text-primary: #1d1d1f;
+            --text-secondary: rgba(0, 0, 0, 0.56);
+            --surface-light: #f5f5f7;
+            --surface-dark: #000000;
+            --card-shadow: rgba(0, 0, 0, 0.08);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text-primary: #f5f5f7;
+                --text-secondary: rgba(255, 255, 255, 0.56);
+                --surface-light: #1d1d1f;
+                --surface-dark: #000000;
+                --card-shadow: rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            color: var(--text-primary);
+            background: var(--surface-dark);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 113, 227, 0.15) 0%, transparent 70%);
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: aurora1 8s ease-in-out infinite alternate;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(128, 0, 255, 0.1) 0%, transparent 70%);
+            bottom: 10%;
+            right: 20%;
+            animation: aurora2 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes aurora1 {
+            0% { transform: translateX(-50%) translateY(0); }
+            100% { transform: translateX(-40%) translateY(-30px); }
+        }
+
+        @keyframes aurora2 {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(20px) scale(1.1); }
+        }
+
+        .hero-content { position: relative; z-index: 1; max-width: 800px; }
+
+        .hero h1 {
+            font-size: clamp(48px, 8vw, 80px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.05;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--apple-blue), #a855f7, var(--bright-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: clamp(17px, 2.5vw, 21px);
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+            letter-spacing: -0.02em;
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 980px;
+            font-size: 17px;
+            font-weight: 400;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--apple-blue);
+            color: #fff;
+        }
+
+        .btn-primary:hover { background: #0077ed; transform: scale(1.02); }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--bright-blue);
+            border: 1px solid var(--bright-blue);
+        }
+
+        .btn-secondary:hover { background: rgba(41, 151, 255, 0.1); }
+
+        /* Screenshots */
+        .screenshots {
+            padding: 80px 24px;
+            background: var(--surface-light);
+        }
+
+        .screenshots-inner {
+            max-width: 980px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .section-subtitle {
+            font-size: 17px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 48px;
+            letter-spacing: -0.02em;
+        }
+
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .screenshot-card {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .screenshot-card { background: #2a2a2d; }
+        }
+
+        .screenshot-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .screenshot-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .screenshot-card .label {
+            padding: 16px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        /* Features */
+        .features {
+            padding: 100px 24px;
+            background: var(--surface-dark);
+        }
+
+        .features-grid {
+            max-width: 980px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+        }
+
+        .feature {
+            padding: 32px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: background 0.2s ease;
+        }
+
+        .feature:hover { background: rgba(255, 255, 255, 0.07); }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--apple-blue), #5856d6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        .feature h3 {
+            font-size: 21px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .feature p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.56);
+            line-height: 1.5;
+        }
+
+        /* Tech Stack */
+        .tech {
+            padding: 80px 24px;
+            background: var(--surface-light);
+            text-align: center;
+        }
+
+        .tech-badges {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 32px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .badge {
+            padding: 8px 16px;
+            border-radius: 980px;
+            font-size: 14px;
+            font-weight: 500;
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-primary);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .badge { background: rgba(255, 255, 255, 0.1); }
+        }
+
+        /* Footer */
+        footer {
+            padding: 48px 24px;
+            text-align: center;
+            background: var(--surface-dark);
+            color: rgba(255, 255, 255, 0.36);
+            font-size: 12px;
+        }
+
+        footer a { color: var(--bright-blue); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-content">
+        <h1><span>Fetch</span></h1>
+        <p>A native macOS frontend for yt-dlp. Paste a URL, pick a format, download. Supports 1800+ sites with a polished SwiftUI interface.</p>
+        <div class="hero-buttons">
+            <a href="https://github.com/twitchyvr/Fetch" class="btn btn-primary">View on GitHub</a>
+            <a href="https://github.com/twitchyvr/Fetch/wiki" class="btn btn-secondary">Documentation</a>
+        </div>
+    </div>
+</section>
+
+<!-- Screenshots -->
+<section class="screenshots">
+    <div class="screenshots-inner">
+        <h2 class="section-title">Built for macOS</h2>
+        <p class="section-subtitle">Native SwiftUI. Apple HIG compliant. Zero external dependencies.</p>
+        <div class="screenshot-grid">
+            <div class="screenshot-card">
+                <img src="https://raw.githubusercontent.com/twitchyvr/Fetch/main/screenshots/new-download-view.png" alt="New Download view" loading="lazy">
+                <div class="label">New Download</div>
+            </div>
+            <div class="screenshot-card">
+                <img src="https://raw.githubusercontent.com/twitchyvr/Fetch/main/screenshots/queue-view.png" alt="Download Queue" loading="lazy">
+                <div class="label">Download Queue</div>
+            </div>
+            <div class="screenshot-card">
+                <img src="https://raw.githubusercontent.com/twitchyvr/Fetch/main/screenshots/presets-view.png" alt="Presets" loading="lazy">
+                <div class="label">Presets</div>
+            </div>
+            <div class="screenshot-card">
+                <img src="https://raw.githubusercontent.com/twitchyvr/Fetch/main/screenshots/settings-view.png" alt="Settings" loading="lazy">
+                <div class="label">Settings</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="features">
+    <div class="features-grid">
+        <div class="feature">
+            <div class="feature-icon">&#x1F50D;</div>
+            <h3>Dynamic Format Discovery</h3>
+            <p>Queries yt-dlp per-URL for every available format, resolution, codec, and bitrate. Never hardcoded.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">&#x1F514;</div>
+            <h3>macOS Notifications</h3>
+            <p>Banner notifications on download completion with "Open" and "Show in Finder" actions. Dock badge for active count.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">&#x1F4CB;</div>
+            <h3>Clipboard Monitoring</h3>
+            <p>Detects media URLs in your clipboard from known sites and offers one-click download via an inline banner.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">&#x1F3AF;</div>
+            <h3>Drag and Drop</h3>
+            <p>Drop URLs from any browser directly into the app. Supports UTType.url and plain text drops.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">&#x2699;&#xFE0F;</div>
+            <h3>Download Presets</h3>
+            <p>Save format, quality, and output configurations. Built-in presets for common scenarios plus custom presets.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">&#x1F512;</div>
+            <h3>Process Safety</h3>
+            <p>Async process management with proper cancellation, pipe deadlock prevention, and cleanup on app quit.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Tech Stack -->
+<section class="tech">
+    <h2 class="section-title">Tech Stack</h2>
+    <p class="section-subtitle">Built with the latest Apple technologies. No compromises.</p>
+    <div class="tech-badges">
+        <span class="badge">Swift 6</span>
+        <span class="badge">SwiftUI</span>
+        <span class="badge">SwiftData</span>
+        <span class="badge">macOS 14+</span>
+        <span class="badge">Strict Concurrency</span>
+        <span class="badge">XcodeGen</span>
+        <span class="badge">Zero Dependencies</span>
+        <span class="badge">AGPL-3.0</span>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-links">
+        <a href="https://github.com/twitchyvr/Fetch">GitHub</a>
+        <a href="https://github.com/twitchyvr/Fetch/wiki">Wiki</a>
+        <a href="https://github.com/twitchyvr/Fetch/issues">Issues</a>
+        <a href="https://github.com/twitchyvr/Fetch/blob/main/CHANGELOG.md">Changelog</a>
+        <a href="https://github.com/twitchyvr/Fetch/blob/main/CONTRIBUTING.md">Contributing</a>
+    </div>
+    <p>Copyright &copy; 2026 Matt Rogers. Licensed under AGPL-3.0.</p>
+</footer>
+
+</body>
+</html>
