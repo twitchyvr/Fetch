@@ -12,29 +12,33 @@ Fetch wraps yt-dlp with a polished native interface — paste a URL, pick a form
 
 ## Screenshots
 
-| New Download | Download Queue | History |
+| New Download | Media Info + AI Suggestions | Stats Dashboard |
 |:---:|:---:|:---:|
-| ![New Download](screenshots/new-download-view.png) | ![Queue](screenshots/queue-view.png) | ![History](screenshots/history-view.png) |
+| ![New Download](screenshots/new-download-view.png) | ![Media Info](screenshots/media-info-view.png) | ![Stats](screenshots/stats-view.png) |
 
-| Presets | Settings |
-|:---:|:---:|
-| ![Presets](screenshots/presets-view.png) | ![Settings](screenshots/settings-view.png) |
+| Download Queue | History | Presets | Settings |
+|:---:|:---:|:---:|:---:|
+| ![Queue](screenshots/queue-view.png) | ![History](screenshots/history-view.png) | ![Presets](screenshots/presets-view.png) | ![Settings](screenshots/settings-view.png) |
 
 ## Features
 
 - **Native macOS app** — SwiftUI, Apple HIG compliant, feels like a first-party utility
-- **Animated aurora UI** — subtle animated gradient backgrounds with shimmer progress bars
+- **Stats dashboard** — Swift Charts: downloads by extractor, format distribution, activity timeline
+- **AI-friendly suggestions** — contextual tips for Whisper, podcast AI, auto-subs, SponsorBlock
+- **Advanced options** — subtitles, SponsorBlock, cookies, speed limit, output template, proxy
+- **Batch downloads** — paste multiple URLs, drop text/JSON files, smart URL extraction
+- **Interactive onboarding** — 4-step walkthrough with Skip option, rotating tips
 - **Dynamic format discovery** — queries yt-dlp per-URL for available formats, resolutions, and codecs
-- **Download queue** — concurrent downloads with real-time progress, speed, and ETA
+- **Download queue** — concurrent downloads with shimmer progress bars and thumbnail previews
 - **macOS notifications** — banner notifications on download completion with "Open" and "Show in Finder" actions
 - **Dock badge** — shows active download count
 - **Clipboard monitoring** — detects media URLs copied to clipboard and offers one-click download
-- **Drag-and-drop** — drop URLs from any browser directly into the app
+- **Drag-and-drop** — drop URLs or text files from any browser directly into the app
+- **File tracking** — history detects when downloaded files are deleted or moved
 - **Download presets** — save format/quality/output configurations for different use cases
-- **Download history** — SwiftData-backed history with search, persists immediately
+- **Download history** — SwiftData-backed history with search, thumbnails, relative dates
 - **Menu bar presence** — monitor downloads from the menu bar (window-style MenuBarExtra)
 - **Full accessibility** — VoiceOver labels, WCAG AA contrast, keyboard navigation
-- **Auto-update checking** — knows when yt-dlp has an update available
 - **Option discovery** — parses `yt-dlp --help` at runtime to expose all available options
 - **1800+ supported sites** — anything yt-dlp supports, Fetch supports
 
