@@ -141,6 +141,9 @@ struct FormatPickerView: View {
 
                 Spacer()
 
+                Button("Cancel") { dismiss() }
+                    .keyboardShortcut(.cancelAction)
+
                 Button("Clear Selection") {
                     selectedFormat = nil
                 }
@@ -148,11 +151,11 @@ struct FormatPickerView: View {
 
                 Button("Done") { dismiss() }
                     .buttonStyle(.borderedProminent)
-                    .keyboardShortcut(.return)
+                    .keyboardShortcut(.defaultAction)
             }
             .padding()
         }
-        .frame(minWidth: 800, minHeight: 500)
+        .frame(minWidth: 700, minHeight: 500)
     }
 
     private var filteredFormats: [FormatOption] {
