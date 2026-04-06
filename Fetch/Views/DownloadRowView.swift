@@ -44,7 +44,7 @@ struct DownloadRowView: View {
                 // Progress bar
                 if task.status == .downloading || task.status == .postprocessing {
                     ProgressView(value: task.progress, total: 100)
-                        .progressViewStyle(ShimmerProgressViewStyle())
+                        .progressViewStyle(GradientProgressStyle())
                         .accessibilityHidden(true)
 
                     HStack(spacing: 8) {

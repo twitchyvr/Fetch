@@ -376,14 +376,13 @@ struct NewDownloadView: View {
                 Spacer()
                 Button(action: startDownload) {
                     Label("Download", systemImage: "arrow.down.circle.fill")
-                        .font(.body.weight(.semibold))
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
+                .buttonStyle(GradientButtonStyle())
                 .keyboardShortcut(.return)
             }
         }
         .cardStyle()
+        .hoverLift()
         .sheet(isPresented: $showFormatPicker) {
             FormatPickerView(
                 mediaInfo: info,
