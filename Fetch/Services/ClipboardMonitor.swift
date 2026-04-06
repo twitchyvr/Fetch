@@ -48,40 +48,44 @@ final class ClipboardMonitor {
         onURLDetected?(trimmed)
     }
 
-    /// Whether the URL is from a well-known media site (instant detection in clipboard banner).
-    func isKnownMediaHost(_ string: String) -> Bool {
-        guard let url = URL(string: string),
-              let host = url.host
-        else { return false }
+    private static let knownMediaHosts = [
+        "youtube.com", "youtu.be", "www.youtube.com", "m.youtube.com",
+        "vimeo.com", "dailymotion.com", "twitch.tv", "www.twitch.tv",
+        "soundcloud.com", "bandcamp.com",
+        "twitter.com", "x.com",
+        "reddit.com", "www.reddit.com",
+        "tiktok.com", "www.tiktok.com",
+        "instagram.com", "www.instagram.com",
+        "facebook.com", "www.facebook.com", "fb.watch",
+        "bilibili.com", "www.bilibili.com",
+        "nicovideo.jp", "www.nicovideo.jp",
+        "crunchyroll.com", "www.crunchyroll.com",
+    ]
 
-        let knownHosts = [
-            "youtube.com", "youtu.be", "www.youtube.com", "m.youtube.com",
-            "vimeo.com", "dailymotion.com", "twitch.tv", "www.twitch.tv",
-            "soundcloud.com", "bandcamp.com",
-            "twitter.com", "x.com",
-            "reddit.com", "www.reddit.com",
-            "tiktok.com", "www.tiktok.com",
-            "instagram.com", "www.instagram.com",
-            "facebook.com", "www.facebook.com", "fb.watch",
-            "bilibili.com", "www.bilibili.com",
-            "nicovideo.jp", "www.nicovideo.jp",
-            "crunchyroll.com", "www.crunchyroll.com",
-        ]
-
-        return knownHosts.contains(where: { host.hasSuffix($0) })
-    }
-
-    private func looksLikeMediaURL(_ string: String) -> Bool {
+    /// Whether the string is a valid http/https URL.
+    static func isValidURL(_ string: String) -> Bool {
         guard let url = URL(string: string),
               let scheme = url.scheme,
               ["http", "https"].contains(scheme),
               url.host != nil
-        else {
-            return false
-        }
-
-        // Accept any http/https URL — yt-dlp supports 1000+ extractors.
-        // The clipboard banner will show for all URLs; yt-dlp determines support at fetch time.
+        else { return false }
         return true
+    }
+
+    /// Whether the URL is from a well-known media site.
+    static func isKnownMediaHost(_ string: String) -> Bool {
+        guard let url = URL(string: string),
+              let scheme = url.scheme,
+              ["http", "https"].contains(scheme),
+              let host = url.host
+        else { return false }
+
+        return knownMediaHosts.contains(where: { host.hasSuffix($0) })
+    }
+
+    private func looksLikeMediaURL(_ string: String) -> Bool {
+        // Clipboard detection scoped to known media hosts to avoid banner spam.
+        // Users can paste or drag-drop any URL manually for yt-dlp to try.
+        Self.isKnownMediaHost(string)
     }
 }

@@ -26,8 +26,8 @@ struct SettingsView: View {
         }
         .frame(width: 500, height: 380)
         .task {
-            ytdlpPath = (try? await manager.service.findBinary()) ?? "Not found"
-            extractorCount = (try? await manager.service.listExtractors().count) ?? 0
+            ytdlpPath = (try? await manager.findBinaryPath()) ?? "Not found"
+            extractorCount = (try? await manager.listExtractors().count) ?? 0
         }
     }
 

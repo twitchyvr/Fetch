@@ -14,7 +14,7 @@ final class DownloadManager {
     var defaultOutputDirectory = "~/Downloads/Fetch"
     var modelContext: ModelContext?
 
-    let service = YTDLPService()
+    private let service = YTDLPService()
     private var runningCount = 0
 
     // MARK: - Version & Updates
@@ -42,6 +42,16 @@ final class DownloadManager {
 
     func fetchMediaInfo(for url: String) async throws -> MediaInfo {
         try await service.getMediaInfo(for: url)
+    }
+
+    // MARK: - Service Pass-through (for Settings)
+
+    func findBinaryPath() async throws -> String {
+        try await service.findBinary()
+    }
+
+    func listExtractors() async throws -> [String] {
+        try await service.listExtractors()
     }
 
     // MARK: - Download Queue
@@ -188,7 +198,12 @@ final class DownloadManager {
 
     // MARK: - Save to History
 
+    private var savedTaskIDs: Set<UUID> = []
+
     func saveToHistory(_ task: DownloadTask, context: ModelContext) {
+        guard !savedTaskIDs.contains(task.id) else { return }
+        savedTaskIDs.insert(task.id)
+
         let download = Download(
             url: task.url,
             title: task.title ?? task.url,
@@ -201,6 +216,7 @@ final class DownloadManager {
             duration: task.duration
         )
         context.insert(download)
+        try? context.save()
     }
 }
 
