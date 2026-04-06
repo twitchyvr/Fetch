@@ -66,6 +66,7 @@ actor YTDLPService {
         outputDirectory: String,
         outputTemplate: String = "%(title)s.%(ext)s",
         extraArgs: [String] = [],
+        onProcessStart: (@Sendable (Process) -> Void)? = nil,
         progressHandler: @Sendable @escaping (DownloadProgress) -> Void
     ) async throws -> String {
         let bin = try await findBinary()
@@ -97,7 +98,7 @@ actor YTDLPService {
 
         let result = LockedValue("")
 
-        try await streamProcess(bin, arguments: arguments) { line in
+        try await streamProcess(bin, arguments: arguments, onProcessStart: onProcessStart) { line in
             if line.hasPrefix("download:") {
                 let raw = String(line.dropFirst("download:".count))
                 let parts = raw.split(separator: "\t", omittingEmptySubsequences: false).map {
@@ -187,10 +188,14 @@ actor YTDLPService {
                 return
             }
 
-            process.waitUntilExit()
-
+            // Read pipe data BEFORE waitUntilExit to prevent deadlock.
+            // If the child writes >64KB, the pipe buffer fills and the child
+            // blocks on write. Reading first drains the buffer; readDataToEndOfFile
+            // returns at EOF (child exit), so this implicitly waits.
             let outData = stdout.fileHandleForReading.readDataToEndOfFile()
             let errData = stderr.fileHandleForReading.readDataToEndOfFile()
+            process.waitUntilExit()
+
             let outStr = String(data: outData, encoding: .utf8) ?? ""
             let errStr = String(data: errData, encoding: .utf8) ?? ""
 
@@ -210,6 +215,7 @@ actor YTDLPService {
     private func streamProcess(
         _ path: String,
         arguments: [String],
+        onProcessStart: (@Sendable (Process) -> Void)? = nil,
         lineHandler: @escaping @Sendable (String) -> Void
     ) async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
@@ -222,6 +228,7 @@ actor YTDLPService {
             process.standardError = outputPipe // yt-dlp writes progress to stderr
 
             let lineBuffer = LockedValue("")
+            let didResume = LockedValue(false)
 
             outputPipe.fileHandleForReading.readabilityHandler = { handle in
                 let data = handle.availableData
@@ -240,7 +247,11 @@ actor YTDLPService {
                 if !remaining.isEmpty {
                     lineHandler(remaining)
                 }
-                if proc.terminationStatus == 0 {
+                // Guard against double-resume if process fails to launch
+                guard !didResume.get() else { return }
+                didResume.set(true)
+                if proc.terminationStatus == 0 || proc.terminationStatus == 15 {
+                    // 0 = success, 15 = SIGTERM (user-initiated cancel)
                     continuation.resume()
                 } else {
                     continuation.resume(throwing: YTDLPError.processError(
@@ -252,7 +263,10 @@ actor YTDLPService {
 
             do {
                 try process.run()
+                onProcessStart?(process)
             } catch {
+                guard !didResume.get() else { return }
+                didResume.set(true)
                 continuation.resume(throwing: error)
             }
         }
