@@ -22,6 +22,7 @@
 		B51F6B0FF426EDCB275EDA9B /* PresetEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F66D521F27304FC866DF21 /* PresetEditorView.swift */; };
 		BF4978831B551D7016E5DF7B /* DownloadQueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2204AA8F92B296FE42E112 /* DownloadQueueView.swift */; };
 		CC20404951AB80477EA91C7A /* NewDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4E5FA37B9156D3146D1561 /* NewDownloadView.swift */; };
+		E95B726F299DDC86547F81B4 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2015C2DFB9042CD95C78E28 /* NotificationService.swift */; };
 		EED7DA11CD8FA1102C2DD1B3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F8777C9ABE883DC2DE1A33 /* SettingsView.swift */; };
 		F3FD90290BB6125BD843AE6F /* FormatPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C2623AAB3EB28232466FDDE /* FormatPickerView.swift */; };
 		FEB0B42D3F7AAE255FBB13E6 /* FormatOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2E05E552D27BF453B59CF0 /* FormatOption.swift */; };
@@ -57,6 +58,7 @@
 		810C9DED2B14FB17EFA4529A /* DownloadRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadRowView.swift; sourceTree = "<group>"; };
 		8E96BAC29AB9C3CE3DAC8C30 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		A5F8777C9ABE883DC2DE1A33 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B2015C2DFB9042CD95C78E28 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		BE17EB2ADCBD3436D999E2DC /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		C50FE8D8EB834FCF61AD11C6 /* YTDLPService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTDLPService.swift; sourceTree = "<group>"; };
 		CB4BE44D5F65BC39A95ED47F /* FetchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchTests.swift; sourceTree = "<group>"; };
@@ -80,6 +82,7 @@
 			children = (
 				603D7BFBF85B8544C708F910 /* ClipboardMonitor.swift */,
 				2CC7AD15C637CADA0824F35E /* DownloadManager.swift */,
+				B2015C2DFB9042CD95C78E28 /* NotificationService.swift */,
 				C50FE8D8EB834FCF61AD11C6 /* YTDLPService.swift */,
 			);
 			path = Services;
@@ -251,6 +254,7 @@
 				F3FD90290BB6125BD843AE6F /* FormatPickerView.swift in Sources */,
 				5F89860AE5866DDA04D7D767 /* HistoryView.swift in Sources */,
 				CC20404951AB80477EA91C7A /* NewDownloadView.swift in Sources */,
+				E95B726F299DDC86547F81B4 /* NotificationService.swift in Sources */,
 				782C0E06D94E3E88CB598E15 /* Preset.swift in Sources */,
 				B51F6B0FF426EDCB275EDA9B /* PresetEditorView.swift in Sources */,
 				EED7DA11CD8FA1102C2DD1B3 /* SettingsView.swift in Sources */,
