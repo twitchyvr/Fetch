@@ -13,8 +13,9 @@ struct DownloadRowView: View {
                     .accessibilityHidden(true)
 
                 Text(task.title ?? task.url)
-                    .font(.callout.bold())
+                    .font(.callout.weight(.semibold))
                     .lineLimit(1)
+                    .tracking(-0.2)
 
                 Spacer()
 

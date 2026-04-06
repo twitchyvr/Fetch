@@ -93,8 +93,9 @@ struct ClipboardBanner: View {
             .foregroundStyle(.secondary)
             .accessibilityLabel("Dismiss")
         }
-        .padding(12)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+        .padding(Design.Spacing.md)
+        .glassBackground()
+        .shadow(color: Design.Colors.cardShadow, radius: 10, y: 4)
         .padding()
         .accessibilityElement(children: .combine)
     }
