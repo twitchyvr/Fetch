@@ -11,6 +11,7 @@ struct DownloadQueueView: View {
                     systemImage: "arrow.down.circle.dashed",
                     description: Text("Start a download from the New Download tab or paste a URL.")
                 )
+                .auroraBackground(intensity: 0.06, speed: 0.3)
             } else {
                 List {
                     ForEach(manager.activeTasks) { task in

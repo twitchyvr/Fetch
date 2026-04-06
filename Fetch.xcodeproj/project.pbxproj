@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		014950E33F4A647CEBFF455E /* AuroraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 295A40290D9CAEFC8E428801 /* AuroraView.swift */; };
 		3493B290393BF124FD3FCD9F /* DownloadRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 810C9DED2B14FB17EFA4529A /* DownloadRowView.swift */; };
 		430DE1CBFBCAFB4760DA4655 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B850F5B3805294E911C842 /* ContentView.swift */; };
 		469A19EBEE2928AB5C294D4F /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F699F3560CD95002F95A2D /* SidebarView.swift */; };
@@ -43,6 +44,7 @@
 		03F699F3560CD95002F95A2D /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		176D1E2BC292A264EFB80D97 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1FBA7AF4F9DBED4D305D007C /* Fetch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fetch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		295A40290D9CAEFC8E428801 /* AuroraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuroraView.swift; sourceTree = "<group>"; };
 		2CC7AD15C637CADA0824F35E /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
 		3A4E5FA37B9156D3146D1561 /* NewDownloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewDownloadView.swift; sourceTree = "<group>"; };
 		3B2204AA8F92B296FE42E112 /* DownloadQueueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadQueueView.swift; sourceTree = "<group>"; };
@@ -103,6 +105,7 @@
 		68335941E0EA42D7F04DD16B /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				295A40290D9CAEFC8E428801 /* AuroraView.swift */,
 				01B850F5B3805294E911C842 /* ContentView.swift */,
 				3B2204AA8F92B296FE42E112 /* DownloadQueueView.swift */,
 				810C9DED2B14FB17EFA4529A /* DownloadRowView.swift */,
@@ -236,6 +239,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				014950E33F4A647CEBFF455E /* AuroraView.swift in Sources */,
 				91A342B625E57B799CACE111 /* ClipboardMonitor.swift in Sources */,
 				430DE1CBFBCAFB4760DA4655 /* ContentView.swift in Sources */,
 				4E4407DB8D0EFC532B5E1B05 /* Download.swift in Sources */,

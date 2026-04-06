@@ -28,6 +28,7 @@ struct NewDownloadView: View {
             }
             .padding(24)
         }
+        .auroraBackground(intensity: 0.08, speed: 0.4)
         .navigationTitle("New Download")
         .onChange(of: initialURL) { _, newValue in
             if let newValue, !newValue.isEmpty, newValue != urlText {
