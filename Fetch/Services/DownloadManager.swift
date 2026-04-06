@@ -235,13 +235,21 @@ final class DownloadManager {
         guard !savedTaskIDs.contains(task.id) else { return }
         savedTaskIDs.insert(task.id)
 
+        // Get actual file size from disk
+        var fileSize: Int64?
+        if let path = task.outputPath {
+            let attrs = try? FileManager.default.attributesOfItem(atPath: path)
+            fileSize = attrs?[.size] as? Int64
+        }
+
         let download = Download(
             url: task.url,
             title: task.title ?? task.url,
             status: .completed,
             formatId: task.formatId,
-            formatDescription: task.formatDescription,
+            formatDescription: task.formatDescription ?? task.formatId,
             outputPath: task.outputPath,
+            fileSize: fileSize,
             thumbnailURL: task.thumbnailURL,
             extractor: task.extractor,
             duration: task.duration
