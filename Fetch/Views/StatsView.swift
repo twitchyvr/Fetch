@@ -5,6 +5,13 @@ import Charts
 struct StatsView: View {
     @Query(sort: \Download.dateCreated, order: .reverse) private var downloads: [Download]
 
+    // Cached chart data — recomputed only when downloads.count changes
+    @State private var cachedExtractorData: [ChartDataPoint] = []
+    @State private var cachedFormatData: [ChartDataPoint] = []
+    @State private var cachedTimelineData: [TimelineDataPoint] = []
+    @State private var cachedFormattedTotalSize: String = "N/A"
+    @State private var cachedTopExtractor: String?
+
     var body: some View {
         Group {
             if downloads.isEmpty {
@@ -15,6 +22,68 @@ struct StatsView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationTitle("Stats")
+        .task(id: downloads.count) {
+            recomputeChartData()
+        }
+    }
+
+    private func recomputeChartData() {
+        // Extractor data
+        let extractorGrouped = Dictionary(grouping: downloads) { $0.extractor ?? "Unknown" }
+        cachedExtractorData = extractorGrouped.map { ChartDataPoint(name: $0.key, count: $0.value.count) }
+            .sorted { $0.count > $1.count }
+            .prefix(10)
+            .map { $0 }
+
+        // Format data
+        let formatGrouped = Dictionary(grouping: downloads) { item -> String in
+            guard let desc = item.formatDescription?.lowercased() else { return "Unknown" }
+            if desc.contains("mp4") { return "MP4" }
+            if desc.contains("webm") { return "WebM" }
+            if desc.contains("mp3") { return "MP3" }
+            if desc.contains("m4a") { return "M4A" }
+            if desc.contains("mkv") { return "MKV" }
+            if desc.contains("opus") { return "Opus" }
+            if desc.contains("flac") { return "FLAC" }
+            if desc.contains("wav") { return "WAV" }
+            return desc.prefix(8).uppercased()
+        }
+        cachedFormatData = formatGrouped.map { ChartDataPoint(name: $0.key, count: $0.value.count) }
+            .sorted { $0.count > $1.count }
+
+        // Timeline data
+        let calendar = Calendar.current
+        let now = Date()
+        if let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: now) {
+            let recentDownloads = downloads.filter { $0.dateCreated >= thirtyDaysAgo }
+            let grouped = Dictionary(grouping: recentDownloads) { download -> Date in
+                calendar.startOfDay(for: download.dateCreated)
+            }
+            var result: [TimelineDataPoint] = []
+            var current = calendar.startOfDay(for: thirtyDaysAgo)
+            let end = calendar.startOfDay(for: now)
+            while current <= end {
+                let count = grouped[current]?.count ?? 0
+                result.append(TimelineDataPoint(date: current, count: count))
+                guard let next = calendar.date(byAdding: .day, value: 1, to: current) else { break }
+                current = next
+            }
+            cachedTimelineData = result
+        } else {
+            cachedTimelineData = []
+        }
+
+        // Summary values
+        let total = downloads.compactMap(\.fileSize).reduce(0, +)
+        if total > 0 {
+            let formatter = ByteCountFormatter()
+            formatter.countStyle = .file
+            cachedFormattedTotalSize = formatter.string(fromByteCount: total)
+        } else {
+            cachedFormattedTotalSize = "N/A"
+        }
+
+        cachedTopExtractor = extractorGrouped.max(by: { $0.value.count < $1.value.count })?.key
     }
 
     // MARK: - Empty State
@@ -68,14 +137,14 @@ struct StatsView: View {
 
             SummaryCard(
                 title: "Total Size",
-                value: formattedTotalSize,
+                value: cachedFormattedTotalSize,
                 icon: "externaldrive.fill",
                 color: .purple
             )
 
             SummaryCard(
                 title: "Top Extractor",
-                value: topExtractor ?? "N/A",
+                value: cachedTopExtractor ?? "N/A",
                 icon: "globe",
                 color: .orange
             )
@@ -89,7 +158,7 @@ struct StatsView: View {
             Text("Downloads by Extractor")
                 .font(.headline)
 
-            Chart(extractorData, id: \.name) { item in
+            Chart(cachedExtractorData, id: \.name) { item in
                 BarMark(
                     x: .value("Downloads", item.count),
                     y: .value("Extractor", item.name)
@@ -98,7 +167,7 @@ struct StatsView: View {
                 .cornerRadius(Design.Radius.micro)
             }
             .chartXAxisLabel("Downloads", alignment: .center)
-            .frame(minHeight: max(CGFloat(extractorData.count) * 32, 120))
+            .frame(minHeight: max(CGFloat(cachedExtractorData.count) * 32, 120))
         }
         .cardStyle()
         .frame(maxWidth: .infinity)
@@ -111,7 +180,7 @@ struct StatsView: View {
             Text("Format Distribution")
                 .font(.headline)
 
-            Chart(formatData, id: \.name) { item in
+            Chart(cachedFormatData, id: \.name) { item in
                 SectorMark(
                     angle: .value("Count", item.count),
                     innerRadius: .ratio(0.5),
@@ -138,7 +207,7 @@ struct StatsView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            Chart(timelineData, id: \.date) { item in
+            Chart(cachedTimelineData, id: \.date) { item in
                 LineMark(
                     x: .value("Date", item.date, unit: .day),
                     y: .value("Downloads", item.count)
@@ -164,71 +233,7 @@ struct StatsView: View {
         .cardStyle()
     }
 
-    // MARK: - Data Computation
-
-    private var formattedTotalSize: String {
-        let total = downloads.compactMap(\.fileSize).reduce(0, +)
-        guard total > 0 else { return "N/A" }
-        let formatter = ByteCountFormatter()
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: total)
-    }
-
-    private var topExtractor: String? {
-        let grouped = Dictionary(grouping: downloads) { $0.extractor ?? "Unknown" }
-        return grouped.max(by: { $0.value.count < $1.value.count })?.key
-    }
-
-    private var extractorData: [ChartDataPoint] {
-        let grouped = Dictionary(grouping: downloads) { $0.extractor ?? "Unknown" }
-        return grouped.map { ChartDataPoint(name: $0.key, count: $0.value.count) }
-            .sorted { $0.count > $1.count }
-            .prefix(10)
-            .map { $0 }
-    }
-
-    private var formatData: [ChartDataPoint] {
-        let grouped = Dictionary(grouping: downloads) { item -> String in
-            guard let desc = item.formatDescription?.lowercased() else { return "Unknown" }
-            if desc.contains("mp4") { return "MP4" }
-            if desc.contains("webm") { return "WebM" }
-            if desc.contains("mp3") { return "MP3" }
-            if desc.contains("m4a") { return "M4A" }
-            if desc.contains("mkv") { return "MKV" }
-            if desc.contains("opus") { return "Opus" }
-            if desc.contains("flac") { return "FLAC" }
-            if desc.contains("wav") { return "WAV" }
-            return desc.prefix(8).uppercased()
-        }
-        return grouped.map { ChartDataPoint(name: $0.key, count: $0.value.count) }
-            .sorted { $0.count > $1.count }
-    }
-
-    private var timelineData: [TimelineDataPoint] {
-        let calendar = Calendar.current
-        let now = Date()
-        guard let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: now) else {
-            return []
-        }
-
-        let recentDownloads = downloads.filter { $0.dateCreated >= thirtyDaysAgo }
-        let grouped = Dictionary(grouping: recentDownloads) { download -> Date in
-            calendar.startOfDay(for: download.dateCreated)
-        }
-
-        var result: [TimelineDataPoint] = []
-        var current = calendar.startOfDay(for: thirtyDaysAgo)
-        let end = calendar.startOfDay(for: now)
-
-        while current <= end {
-            let count = grouped[current]?.count ?? 0
-            result.append(TimelineDataPoint(date: current, count: count))
-            guard let next = calendar.date(byAdding: .day, value: 1, to: current) else { break }
-            current = next
-        }
-
-        return result
-    }
+    // MARK: - Data Computation (moved to recomputeChartData)
 }
 
 // MARK: - Data Types

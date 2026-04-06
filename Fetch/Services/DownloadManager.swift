@@ -241,6 +241,7 @@ final class DownloadManager {
                 }
 
                 await MainActor.run {
+                    task.processHandle = nil
                     guard task.status != .cancelled else {
                         self?.processQueue()
                         self?.updateDockBadge()
@@ -263,6 +264,7 @@ final class DownloadManager {
                 }
             } catch {
                 await MainActor.run {
+                    task.processHandle = nil
                     if task.status != .cancelled {
                         task.status = .failed
                         task.error = error.localizedDescription
