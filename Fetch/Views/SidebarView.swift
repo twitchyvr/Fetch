@@ -36,6 +36,11 @@ struct SidebarView: View {
                     .tag(SidebarSection.stats)
             }
 
+            Section("Tools") {
+                Label(SidebarSection.ffmpegLab.rawValue, systemImage: SidebarSection.ffmpegLab.icon)
+                    .tag(SidebarSection.ffmpegLab)
+            }
+
             Section("Configuration") {
                 Label(SidebarSection.presets.rawValue, systemImage: SidebarSection.presets.icon)
                     .tag(SidebarSection.presets)
