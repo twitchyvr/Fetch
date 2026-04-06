@@ -1,43 +1,105 @@
-# Fetch — Project Instructions
+# Fetch
 
-## Project Overview
-Native macOS SwiftUI frontend for yt-dlp. Dynamically wraps the yt-dlp CLI — never hardcodes formats, options, or site support.
+Native macOS SwiftUI frontend for [yt-dlp](https://github.com/yt-dlp/yt-dlp). Wraps the CLI dynamically — never hardcodes formats, options, or site support.
 
 ## Tech Stack
-- **Language:** Swift 6.0
-- **UI:** SwiftUI (macOS 14+)
-- **Persistence:** SwiftData
-- **Concurrency:** Swift Concurrency (actors, async/await)
-- **Project Generation:** XcodeGen (`project.yml` → `Fetch.xcodeproj`)
 
-## Build & Run
+- **Swift 6.3** (strict concurrency enabled)
+- **SwiftUI** macOS 14+ (Sonoma), `NavigationSplitView` layout
+- **SwiftData** for download history and presets
+- **XcodeGen** for project generation from `project.yml`
+- **Zero external Swift package dependencies** — keep it this way
+
+## Build Commands
+
 ```bash
-# Regenerate Xcode project after changing project.yml
+# Regenerate .xcodeproj after changing project.yml or adding/removing source files
 xcodegen generate
 
-# Build from CLI
-xcodebuild -project Fetch.xcodeproj -scheme Fetch build
+# Build
+xcodebuild -project Fetch.xcodeproj -scheme Fetch -destination 'platform=macOS' build
 
 # Run tests
-xcodebuild -project Fetch.xcodeproj -scheme FetchTests test
+xcodebuild -project Fetch.xcodeproj -scheme FetchTests -destination 'platform=macOS' test
+
+# Build and run (debug)
+xcodebuild -project Fetch.xcodeproj -scheme Fetch -destination 'platform=macOS' build && open ./build/Build/Products/Debug/Fetch.app
 ```
 
 ## Architecture
 
-### Services Layer
-- `YTDLPService` — Actor wrapping the yt-dlp binary. All process execution goes through here.
-- `DownloadManager` — @Observable @MainActor manager for the download queue. Uses YTDLPService.
-- `ClipboardMonitor` — Polls NSPasteboard for media URLs.
+```
+Fetch/
+├── FetchApp.swift              @main entry, WindowGroup + MenuBarExtra + Settings
+├── Models/
+│   ├── Download.swift          SwiftData @Model — persisted download history
+│   ├── Preset.swift            SwiftData @Model — saved download presets
+│   └── FormatOption.swift      Value types: FormatOption + MediaInfo (parsed from yt-dlp JSON)
+├── Services/
+│   ├── YTDLPService.swift      actor — all yt-dlp process execution goes through here
+│   ├── DownloadManager.swift   @Observable @MainActor — download queue, drives UI
+│   └── ClipboardMonitor.swift  @Observable @MainActor — NSPasteboard URL detection
+└── Views/
+    ├── ContentView.swift       Root NavigationSplitView + ClipboardBanner + SidebarSection enum
+    ├── SidebarView.swift       Sidebar nav + yt-dlp version footer
+    ├── NewDownloadView.swift   URL input → fetch info → format picker → download button
+    ├── DownloadQueueView.swift Active download list + context menus
+    ├── DownloadRowView.swift   Single download row with progress bar
+    ├── FormatPickerView.swift  Full format table (sheet) with filters
+    ├── HistoryView.swift       SwiftData query of past downloads
+    ├── PresetEditorView.swift  Preset list + detail editor (HSplitView)
+    └── SettingsView.swift      App settings (TabView: General, Downloads, Advanced)
+```
 
-### Key Patterns
-- YTDLPService is an `actor` for thread safety around process execution.
-- DownloadManager is `@MainActor` because it drives SwiftUI views.
-- `DownloadTask` is transient (in-memory during download). `Download` is persisted (SwiftData history).
-- Format discovery is per-URL via `yt-dlp --dump-json`, not hardcoded.
+## Key Patterns — READ BEFORE CODING
 
-### Adding Views
-All views go in `Fetch/Views/`. New sections need a case in `SidebarSection` enum in `ContentView.swift`.
+### Concurrency Model
+- `YTDLPService` is an **actor**. All methods are `async`. Call with `await`.
+- `DownloadManager` is `@Observable @MainActor`. It's the bridge between the actor and SwiftUI.
+- `DownloadTask` is `@Observable @unchecked Sendable` — transient in-memory state during a download.
+- `Download` (@Model) is persisted to SwiftData only after completion.
+- Use `LockedValue<T>` (bottom of YTDLPService.swift) for any mutable state captured by `Process` I/O closures. Never use bare `var` in `readabilityHandler` or `terminationHandler` closures.
 
-### Dependencies
-- yt-dlp must be installed on the user's system (discovered at runtime via PATH or known locations).
-- No Swift package dependencies — intentionally zero external deps.
+### yt-dlp Integration (the core value prop)
+- **Format discovery:** `yt-dlp --dump-json --no-download <url>` returns all formats per-URL. Parsed into `MediaInfo` + `[FormatOption]`.
+- **Progress tracking:** `--progress-template` with tab-separated fields, parsed line-by-line via `streamProcess()`.
+- **Option discovery:** `yt-dlp --help` parsed at launch into `[OptionCategory]` for dynamic settings UI.
+- **Extractor list:** `yt-dlp --list-extractors` for supported sites.
+- **Binary discovery:** Checks PATH via `which`, then falls back to `/opt/homebrew/bin/yt-dlp`, `/usr/local/bin/yt-dlp`.
+- **Never hardcode** format IDs, resolutions, site names, or CLI flags. Always discover at runtime.
+
+### Adding a New View
+1. Create `Fetch/Views/MyNewView.swift`
+2. Add a case to `SidebarSection` enum in `ContentView.swift`
+3. Add the case to the `switch` in `ContentView.body`
+4. Run `xcodegen generate` to update the .xcodeproj
+
+### Adding a New Model
+1. Create `Fetch/Models/MyModel.swift` with `@Model`
+2. Add it to the `modelContainer(for:)` call in `FetchApp.swift`
+3. Run `xcodegen generate`
+
+### SwiftData Gotchas
+- `@Model` classes are NOT `Sendable`. Don't pass them across actor boundaries.
+- Store raw types (String, Int, Date) in models, not enums — use computed properties for enum wrappers (see `Download.downloadStatus`).
+- `@Query` only works in SwiftUI views, not in services.
+
+## Project Generation
+
+This project uses **XcodeGen** (`project.yml` → `Fetch.xcodeproj`). The `.xcodeproj` is committed to git for GitHub Desktop compatibility, but `project.yml` is the source of truth.
+
+**When to regenerate:** After adding/removing/moving Swift files, changing build settings, or adding targets. Run `xcodegen generate`.
+
+**Do NOT** edit `Fetch.xcodeproj/project.pbxproj` by hand. Edit `project.yml` instead.
+
+## Runtime Dependencies
+
+- `yt-dlp` — discovered at runtime, not bundled. Install: `brew install yt-dlp`
+- `ffmpeg` — optional but recommended for format merging. Install: `brew install ffmpeg`
+
+## Git Workflow
+
+- Default branch: `main`
+- Feature branches: `feat/<name>`, `fix/<name>`
+- Commit style: Conventional Commits (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`)
+- Always include: `Co-Authored-By: Claude <noreply@anthropic.com>`

@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xcodebuild*)",
+      "Bash(xcodegen*)",
+      "Bash(swift *)",
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(open *)",
+      "Bash(yt-dlp --version*)",
+      "Bash(yt-dlp --help*)",
+      "Bash(yt-dlp --list-extractors*)",
+      "Bash(which *)",
+      "Bash(ls *)",
+      "Bash(mkdir *)"
+    ]
+  }
+}
