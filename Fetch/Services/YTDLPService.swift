@@ -95,7 +95,7 @@ actor YTDLPService {
         arguments += extraArgs
         arguments.append(url)
 
-        var outputFilePath: String?
+        let result = LockedValue("")
 
         try await streamProcess(bin, arguments: arguments) { line in
             if line.hasPrefix("download:") {
@@ -119,7 +119,7 @@ actor YTDLPService {
                     status: .postprocessing
                 ))
             } else if line.hasPrefix("filepath:") {
-                outputFilePath = String(line.dropFirst("filepath:".count))
+                result.set(String(line.dropFirst("filepath:".count)))
             }
         }
 
@@ -128,7 +128,8 @@ actor YTDLPService {
             status: .completed
         ))
 
-        return outputFilePath ?? "\(expandedDir)/unknown"
+        let outputFilePath = result.get()
+        return outputFilePath.isEmpty ? "\(expandedDir)/unknown" : outputFilePath
     }
 
     // MARK: - Update
@@ -217,32 +218,27 @@ actor YTDLPService {
             process.arguments = arguments
 
             let outputPipe = Pipe()
-            let errorPipe = Pipe()
             process.standardOutput = outputPipe
             process.standardError = outputPipe // yt-dlp writes progress to stderr
 
-            var buffer = ""
+            let lineBuffer = LockedValue("")
 
             outputPipe.fileHandleForReading.readabilityHandler = { handle in
                 let data = handle.availableData
                 guard !data.isEmpty else { return }
                 guard let chunk = String(data: data, encoding: .utf8) else { return }
 
-                buffer += chunk
-                while let newlineIndex = buffer.firstIndex(of: "\n") {
-                    let line = String(buffer[buffer.startIndex..<newlineIndex])
-                    buffer = String(buffer[buffer.index(after: newlineIndex)...])
-                    if !line.isEmpty {
-                        lineHandler(line)
-                    }
+                let lines = lineBuffer.appendAndExtractLines(chunk)
+                for line in lines {
+                    lineHandler(line)
                 }
             }
 
             process.terminationHandler = { proc in
                 outputPipe.fileHandleForReading.readabilityHandler = nil
-                // Process remaining buffer
-                if !buffer.isEmpty {
-                    lineHandler(buffer)
+                let remaining = lineBuffer.get()
+                if !remaining.isEmpty {
+                    lineHandler(remaining)
                 }
                 if proc.terminationStatus == 0 {
                     continuation.resume()
@@ -339,5 +335,45 @@ enum OptionParser {
         }
 
         return categories
+    }
+}
+
+// MARK: - Thread-safe value container
+
+final class LockedValue<T: Sendable>: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value: T
+
+    init(_ initial: T) {
+        self.value = initial
+    }
+
+    func get() -> T {
+        lock.lock()
+        defer { lock.unlock() }
+        return value
+    }
+
+    func set(_ newValue: T) {
+        lock.lock()
+        value = newValue
+        lock.unlock()
+    }
+}
+
+extension LockedValue where T == String {
+    func appendAndExtractLines(_ chunk: String) -> [String] {
+        lock.lock()
+        defer { lock.unlock() }
+        value += chunk
+        var lines: [String] = []
+        while let idx = value.firstIndex(of: "\n") {
+            let line = String(value[value.startIndex..<idx])
+            value = String(value[value.index(after: idx)...])
+            if !line.isEmpty {
+                lines.append(line)
+            }
+        }
+        return lines
     }
 }

@@ -66,12 +66,14 @@ final class Preset {
         return args
     }
 
-    static let builtIn: [Preset] = [
-        Preset(name: "Best Quality", formatSelection: "bestvideo+bestaudio/best", preferredQuality: "best"),
-        Preset(name: "1080p MP4", formatSelection: "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080]", preferredQuality: "1080p"),
-        Preset(name: "720p MP4", formatSelection: "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720]", preferredQuality: "720p"),
-        Preset(name: "Audio Only (MP3)", formatSelection: "bestaudio", extraArguments: "--extract-audio --audio-format mp3 --audio-quality 0", preferredQuality: "audio"),
-        Preset(name: "Audio Only (M4A)", formatSelection: "bestaudio[ext=m4a]/bestaudio", extraArguments: "--extract-audio --audio-format m4a", preferredQuality: "audio"),
-        Preset(name: "Podcast", formatSelection: "bestaudio", extraArguments: "--extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata", preferredQuality: "audio"),
-    ]
+    static var builtIn: [Preset] {
+        [
+            Preset(name: "Best Quality", formatSelection: "bestvideo+bestaudio/best", preferredQuality: "best"),
+            Preset(name: "1080p MP4", formatSelection: "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080]", preferredQuality: "1080p"),
+            Preset(name: "720p MP4", formatSelection: "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720]", preferredQuality: "720p"),
+            Preset(name: "Audio Only (MP3)", formatSelection: "bestaudio", preferredQuality: "audio", extraArguments: "--extract-audio --audio-format mp3 --audio-quality 0"),
+            Preset(name: "Audio Only (M4A)", formatSelection: "bestaudio[ext=m4a]/bestaudio", preferredQuality: "audio", extraArguments: "--extract-audio --audio-format m4a"),
+            Preset(name: "Podcast", formatSelection: "bestaudio", preferredQuality: "audio", extraArguments: "--extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata"),
+        ]
+    }
 }

@@ -3,8 +3,6 @@ import SwiftData
 
 @Model
 final class Download {
-    #Unique<Download>([\.url, \.dateCreated])
-
     var url: String
     var title: String
     var status: String
