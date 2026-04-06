@@ -8,7 +8,7 @@ struct DownloadRowView: View {
             // Title row
             HStack {
                 Image(systemName: task.status.icon)
-                    .foregroundStyle(iconColor)
+                    .foregroundStyle(statusColor)
                     .font(.callout)
                     .accessibilityHidden(true)
 
@@ -90,6 +90,7 @@ struct DownloadRowView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
+                    .truncationMode(.middle)
             }
         }
         .padding(.vertical, 6)
@@ -108,10 +109,10 @@ struct DownloadRowView: View {
         return parts.joined(separator: ", ")
     }
 
-    private var iconColor: Color {
+    private var statusColor: Color {
         switch task.status {
         case .queued: .secondary
-        case .downloading: .blue
+        case .downloading: .accentColor
         case .postprocessing: .orange
         case .completed: .green
         case .failed: .red
@@ -125,19 +126,8 @@ struct DownloadRowView: View {
             .font(.caption.bold())
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
-            .background(badgeColor.opacity(0.15), in: Capsule())
-            .foregroundStyle(badgeColor)
+            .background(statusColor.opacity(0.15), in: Capsule())
+            .foregroundStyle(statusColor)
             .accessibilityHidden(true)
-    }
-
-    private var badgeColor: Color {
-        switch task.status {
-        case .queued: .secondary
-        case .downloading: .blue
-        case .postprocessing: .orange
-        case .completed: .green
-        case .failed: .red
-        case .cancelled: .secondary
-        }
     }
 }

@@ -17,6 +17,7 @@ struct NewDownloadView: View {
     @State private var error: String?
     @State private var showFormatPicker = false
     @State private var isDropTargeted = false
+    @State private var fetchTask: Task<Void, Never>?
 
     var body: some View {
         ScrollView {
@@ -270,15 +271,19 @@ struct NewDownloadView: View {
 
     private func fetchInfo() {
         guard !urlText.isEmpty else { return }
+        fetchTask?.cancel()
         error = nil
         mediaInfo = nil
         isLoading = true
 
-        Task {
+        let url = urlText
+        fetchTask = Task {
             do {
-                let info = try await manager.fetchMediaInfo(for: urlText)
+                let info = try await manager.fetchMediaInfo(for: url)
+                guard !Task.isCancelled else { return }
                 mediaInfo = info
             } catch {
+                guard !Task.isCancelled else { return }
                 self.error = error.localizedDescription
             }
             isLoading = false
