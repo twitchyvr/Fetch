@@ -21,6 +21,8 @@ struct NewDownloadView: View {
     @State private var batchMode = false
     @State private var batchURLs: [String] = []
     @State private var batchSelected: Set<String> = []
+    @State private var playlistInfo: PlaylistInfo?
+    @State private var showPlaylistPicker = false
 
     // Advanced options — args built by AdvancedOptionsView
     @State private var advancedArgs: [String] = []
@@ -36,6 +38,27 @@ struct NewDownloadView: View {
             .padding(24)
         }
         .navigationTitle("New Download")
+        .sheet(isPresented: $showPlaylistPicker) {
+            if let playlist = playlistInfo {
+                PlaylistPickerView(playlist: playlist, isPresented: $showPlaylistPicker) { entries in
+                    for entry in entries {
+                        manager.enqueue(
+                            url: entry.url,
+                            title: entry.title,
+                            formatId: nil,
+                            additionalArgs: advancedArgs,
+                            thumbnailURL: entry.thumbnailURL?.absoluteString,
+                            duration: entry.duration,
+                            playlistTitle: playlist.title,
+                            playlistIndex: entry.index,
+                            playlistId: playlist.id
+                        )
+                    }
+                    urlText = ""
+                    playlistInfo = nil
+                }
+            }
+        }
         .onChange(of: initialURL) { _, newValue in
             if let newValue, !newValue.isEmpty, newValue != urlText {
                 urlText = newValue
@@ -434,14 +457,23 @@ struct NewDownloadView: View {
         fetchTask?.cancel()
         error = nil
         mediaInfo = nil
+        playlistInfo = nil
         isLoading = true
 
         let url = urlText
         fetchTask = Task {
             do {
-                let info = try await manager.fetchMediaInfo(for: url)
-                guard !Task.isCancelled else { return }
-                mediaInfo = info
+                // Try playlist detection first
+                if let playlist = try await manager.fetchPlaylistInfo(for: url) {
+                    guard !Task.isCancelled else { return }
+                    playlistInfo = playlist
+                    showPlaylistPicker = true
+                } else {
+                    // Single video
+                    let info = try await manager.fetchMediaInfo(for: url)
+                    guard !Task.isCancelled else { return }
+                    mediaInfo = info
+                }
             } catch {
                 guard !Task.isCancelled else { return }
                 self.error = error.localizedDescription

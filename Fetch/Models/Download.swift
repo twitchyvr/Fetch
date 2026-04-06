@@ -17,6 +17,11 @@ final class Download {
     var dateCompleted: Date?
     var errorMessage: String?
 
+    // Playlist / Collection grouping
+    var playlistTitle: String?
+    var playlistIndex: Int?
+    var playlistId: String?
+
     init(
         url: String,
         title: String,
@@ -27,7 +32,10 @@ final class Download {
         fileSize: Int64? = nil,
         thumbnailURL: String? = nil,
         extractor: String? = nil,
-        duration: Double? = nil
+        duration: Double? = nil,
+        playlistTitle: String? = nil,
+        playlistIndex: Int? = nil,
+        playlistId: String? = nil
     ) {
         self.url = url
         self.title = title
@@ -39,6 +47,9 @@ final class Download {
         self.thumbnailURL = thumbnailURL
         self.extractor = extractor
         self.duration = duration
+        self.playlistTitle = playlistTitle
+        self.playlistIndex = playlistIndex
+        self.playlistId = playlistId
         self.dateCreated = Date()
     }
 

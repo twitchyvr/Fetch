@@ -58,6 +58,64 @@ actor YTDLPService {
         return MediaInfo(json: json, url: url)
     }
 
+    // MARK: - Playlist
+
+    /// Detect whether a URL is a playlist and enumerate its entries.
+    /// Returns nil if the URL is a single video (not a playlist).
+    func getPlaylistInfo(for url: String) async throws -> PlaylistInfo? {
+        let bin = try await findBinary()
+        let result = try await shell(bin, [
+            "--flat-playlist",
+            "--dump-json",
+            "--no-download",
+            "--no-warnings",
+            url,
+        ])
+
+        // --flat-playlist --dump-json outputs one JSON object per line
+        let lines = result.output.components(separatedBy: .newlines).filter { !$0.isEmpty }
+        guard lines.count > 1 else { return nil } // single video, not a playlist
+
+        var entries: [PlaylistEntry] = []
+        var playlistTitle: String?
+        var playlistId: String?
+        var playlistUploader: String?
+
+        for (index, line) in lines.enumerated() {
+            guard let data = line.data(using: .utf8),
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+            else { continue }
+
+            // Extract playlist metadata from first entry
+            if index == 0 {
+                playlistTitle = json["playlist_title"] as? String ?? json["playlist"] as? String
+                playlistId = json["playlist_id"] as? String
+                playlistUploader = json["playlist_uploader"] as? String
+            }
+
+            let entry = PlaylistEntry(
+                url: json["url"] as? String ?? json["webpage_url"] as? String ?? "",
+                title: json["title"] as? String ?? "Entry \(index + 1)",
+                duration: json["duration"] as? TimeInterval,
+                thumbnailURL: (json["thumbnail"] as? String).flatMap { URL(string: $0) },
+                index: index + 1
+            )
+            if !entry.url.isEmpty {
+                entries.append(entry)
+            }
+        }
+
+        guard !entries.isEmpty else { return nil }
+
+        return PlaylistInfo(
+            title: playlistTitle ?? "Playlist",
+            id: playlistId,
+            uploader: playlistUploader,
+            entries: entries,
+            url: url
+        )
+    }
+
     // MARK: - Download
 
     func download(

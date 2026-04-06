@@ -21,6 +21,7 @@
 		77A54975BD430DB4BB3E14AA /* FetchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4BE44D5F65BC39A95ED47F /* FetchTests.swift */; };
 		782C0E06D94E3E88CB598E15 /* Preset.swift in Sources */ = {isa = PBXBuildFile; fileRef = D793FA63DCCCCC5C1490FB6F /* Preset.swift */; };
 		7AA6B1CEF42D4B149257F77C /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7AD15C637CADA0824F35E /* DownloadManager.swift */; };
+		7F508C340D4B58672F164D85 /* PlaylistPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C200474128D92F86539CE26 /* PlaylistPickerView.swift */; };
 		8A23B88E7E891442E1235D64 /* YTDLPService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50FE8D8EB834FCF61AD11C6 /* YTDLPService.swift */; };
 		91A342B625E57B799CACE111 /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603D7BFBF85B8544C708F910 /* ClipboardMonitor.swift */; };
 		99CE97D28A4692EBA98EAD8F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 176D1E2BC292A264EFB80D97 /* Assets.xcassets */; };
@@ -53,6 +54,7 @@
 		176D1E2BC292A264EFB80D97 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1FBA7AF4F9DBED4D305D007C /* Fetch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fetch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		295A40290D9CAEFC8E428801 /* AuroraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuroraView.swift; sourceTree = "<group>"; };
+		2C200474128D92F86539CE26 /* PlaylistPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistPickerView.swift; sourceTree = "<group>"; };
 		2C9A73C0BB961790EBB0D9B3 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		2CC7AD15C637CADA0824F35E /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
 		3A4E5FA37B9156D3146D1561 /* NewDownloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewDownloadView.swift; sourceTree = "<group>"; };
@@ -134,6 +136,7 @@
 				57781422AA02941E7974B42F /* LibraryView.swift */,
 				3A4E5FA37B9156D3146D1561 /* NewDownloadView.swift */,
 				A794F31E255F800586B666AB /* OnboardingView.swift */,
+				2C200474128D92F86539CE26 /* PlaylistPickerView.swift */,
 				02F66D521F27304FC866DF21 /* PresetEditorView.swift */,
 				A5F8777C9ABE883DC2DE1A33 /* SettingsView.swift */,
 				03F699F3560CD95002F95A2D /* SidebarView.swift */,
@@ -280,6 +283,7 @@
 				CC20404951AB80477EA91C7A /* NewDownloadView.swift in Sources */,
 				E95B726F299DDC86547F81B4 /* NotificationService.swift in Sources */,
 				AD1529C23B56930C1344ECF8 /* OnboardingView.swift in Sources */,
+				7F508C340D4B58672F164D85 /* PlaylistPickerView.swift in Sources */,
 				782C0E06D94E3E88CB598E15 /* Preset.swift in Sources */,
 				B51F6B0FF426EDCB275EDA9B /* PresetEditorView.swift in Sources */,
 				EED7DA11CD8FA1102C2DD1B3 /* SettingsView.swift in Sources */,
