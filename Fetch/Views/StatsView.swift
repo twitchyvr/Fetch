@@ -14,6 +14,7 @@ struct StatsView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .navigationTitle("Stats")
     }
 
     // MARK: - Empty State
