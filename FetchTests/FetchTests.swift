@@ -318,3 +318,71 @@ struct TextAnalysisTests {
         #expect(hasLang || insights.isEmpty) // Either detects or returns empty — both valid
     }
 }
+
+// MARK: - Security Tests
+
+@Suite("Security")
+struct SecurityTests {
+
+    @Test("Dangerous yt-dlp flags are filtered from preset args")
+    func filterDangerousFlags() {
+        let dangerous = ["--embed-metadata", "--exec", "rm -rf ~", "--audio-format", "mp3"]
+        let filtered = Preset.filterDangerousFlags(dangerous)
+        #expect(!filtered.contains("--exec"))
+        #expect(!filtered.contains("rm -rf ~"))
+        #expect(filtered.contains("--embed-metadata"))
+        #expect(filtered.contains("--audio-format"))
+        #expect(filtered.contains("mp3"))
+    }
+
+    @Test("--exec-before-download is also filtered")
+    func filterExecBefore() {
+        let args = ["--exec-before-download", "curl evil.com", "--format", "best"]
+        let filtered = Preset.filterDangerousFlags(args)
+        #expect(!filtered.contains("--exec-before-download"))
+        #expect(!filtered.contains("curl evil.com"))
+        #expect(filtered.contains("--format"))
+        #expect(filtered.contains("best"))
+    }
+
+    @Test("--batch-file and --config-locations are filtered")
+    func filterBatchAndConfig() {
+        let args = ["--batch-file", "/tmp/evil.txt", "--config-locations", "/tmp/evil.conf", "-f", "best"]
+        let filtered = Preset.filterDangerousFlags(args)
+        #expect(!filtered.contains("--batch-file"))
+        #expect(!filtered.contains("--config-locations"))
+        #expect(filtered.contains("-f"))
+    }
+
+    @Test("Safe args pass through untouched")
+    func safeArgsPassthrough() {
+        let args = ["--embed-thumbnail", "--embed-metadata", "-f", "bestvideo+bestaudio", "--write-subs"]
+        let filtered = Preset.filterDangerousFlags(args)
+        #expect(filtered == args)
+    }
+
+    @Test("Path sanitization strips traversal sequences")
+    @MainActor func sanitizePathTraversal() {
+        let safe = DownloadManager.sanitizeFilename("../../etc/passwd")
+        #expect(!safe.contains(".."))
+        #expect(!safe.contains("/"))
+    }
+
+    @Test("Path sanitization strips null bytes and control chars")
+    @MainActor func sanitizeNullBytes() {
+        let safe = DownloadManager.sanitizeFilename("video\0name\twith\ncontrol")
+        #expect(!safe.contains("\0"))
+    }
+
+    @Test("Path sanitization returns Untitled for empty result")
+    @MainActor func sanitizeEmpty() {
+        let safe = DownloadManager.sanitizeFilename("...")
+        #expect(safe == "Untitled")
+    }
+
+    @Test("URLParser rejects non-http schemes")
+    func urlParserSchemes() {
+        let urls = URLParser.extractURLs(from: "file:///etc/passwd\njavascript:alert(1)\ndata:text/html,<h1>hi</h1>")
+        #expect(urls.isEmpty)
+    }
+}
