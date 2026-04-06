@@ -52,6 +52,7 @@ struct OnboardingView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
+                    .keyboardShortcut(.defaultAction)
                 } else {
                     Button("Get Started") {
                         hasCompletedOnboarding = true
@@ -59,6 +60,7 @@ struct OnboardingView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
+                    .keyboardShortcut(.defaultAction)
                 }
             }
             .padding(.horizontal, Design.Spacing.xl)
