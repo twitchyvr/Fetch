@@ -19,8 +19,8 @@ struct SidebarView: View {
                             .font(.caption.bold())
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(.blue.opacity(0.2), in: Capsule())
-                            .foregroundStyle(.blue)
+                            .background(Color.accentColor.opacity(0.2), in: Capsule())
+                            .foregroundStyle(Color.accentColor)
                             .accessibilityLabel("\(activeCount) active downloads")
                     }
                 }
