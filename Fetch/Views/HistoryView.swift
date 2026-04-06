@@ -115,12 +115,14 @@ struct HistoryRowView: View {
                 }
                 .frame(width: 56, height: 34)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
+                .accessibilityHidden(true)
                 .overlay(alignment: .bottomTrailing) {
                     if !fileExists {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.system(size: 10))
                             .foregroundStyle(.orange)
                             .offset(x: 4, y: 4)
+                            .accessibilityLabel("File missing from disk")
                     }
                 }
             } else {
@@ -180,11 +182,15 @@ struct HistoryRowView: View {
         }
         .padding(.vertical, 6)
         .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(download.title), \(download.extractor ?? ""), \(download.formattedDuration ?? "")\(fileExists ? "" : ", file missing")")
         .task {
-            // Check if file still exists on disk
-            if let path = download.outputPath {
-                fileExists = FileManager.default.fileExists(atPath: path)
-            }
+            // Check file existence on background thread to avoid scroll jank
+            let path = download.outputPath
+            let exists = await Task.detached {
+                guard let path else { return false }
+                return FileManager.default.fileExists(atPath: path)
+            }.value
+            fileExists = exists
         }
     }
 }
