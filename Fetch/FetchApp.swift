@@ -6,6 +6,10 @@ struct FetchApp: App {
     @State private var downloadManager = DownloadManager()
     @Environment(\.openWindow) private var openWindow
 
+    init() {
+        NotificationService.shared.setup()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

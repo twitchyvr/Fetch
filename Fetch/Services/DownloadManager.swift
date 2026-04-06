@@ -81,12 +81,14 @@ final class DownloadManager {
 
         activeTasks.append(task)
         processQueue()
+        updateDockBadge()
     }
 
     func cancel(_ task: DownloadTask) {
         task.status = .cancelled
         task.processHandle?.terminate()
         processQueue()
+        updateDockBadge()
     }
 
     func cancelAll() {
@@ -94,10 +96,12 @@ final class DownloadManager {
             task.status = .cancelled
             task.processHandle?.terminate()
         }
+        updateDockBadge()
     }
 
     func removeCompleted() {
         activeTasks.removeAll { $0.status == .completed || $0.status == .cancelled || $0.status == .failed }
+        updateDockBadge()
     }
 
     func retry(_ task: DownloadTask) {
@@ -174,6 +178,7 @@ final class DownloadManager {
                 await MainActor.run {
                     guard task.status != .cancelled else {
                         self?.processQueue()
+                        self?.updateDockBadge()
                         return
                     }
                     task.status = .completed
@@ -183,6 +188,13 @@ final class DownloadManager {
                         self?.saveToHistory(task, context: context)
                     }
                     self?.processQueue()
+                    self?.updateDockBadge()
+                    Task {
+                        await NotificationService.shared.notifyDownloadComplete(
+                            title: task.title ?? task.url,
+                            outputPath: outputPath
+                        )
+                    }
                 }
             } catch {
                 await MainActor.run {
@@ -191,9 +203,17 @@ final class DownloadManager {
                         task.error = error.localizedDescription
                     }
                     self?.processQueue()
+                    self?.updateDockBadge()
                 }
             }
         }
+    }
+
+    private func updateDockBadge() {
+        let activeCount = activeTasks.filter {
+            $0.status == .downloading || $0.status == .queued || $0.status == .postprocessing
+        }.count
+        NotificationService.shared.updateDockBadge(activeCount: activeCount)
     }
 
     // MARK: - Save to History
