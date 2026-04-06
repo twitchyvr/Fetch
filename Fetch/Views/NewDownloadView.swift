@@ -228,16 +228,15 @@ struct NewDownloadView: View {
         for provider in providers {
             if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
                 provider.loadItem(forTypeIdentifier: UTType.url.identifier) { item, _ in
-                    if let data = item as? Data, let url = URL(dataRepresentation: data, relativeTo: nil) {
-                        Task { @MainActor in
-                            urlText = url.absoluteString
-                            fetchInfo()
-                        }
-                    } else if let url = item as? URL {
-                        Task { @MainActor in
-                            urlText = url.absoluteString
-                            fetchInfo()
-                        }
+                    let url: URL? = if let data = item as? Data {
+                        URL(dataRepresentation: data, relativeTo: nil)
+                    } else {
+                        item as? URL
+                    }
+                    guard let url, ["http", "https"].contains(url.scheme) else { return }
+                    Task { @MainActor in
+                        urlText = url.absoluteString
+                        fetchInfo()
                     }
                 }
                 return true

@@ -24,9 +24,8 @@ struct DownloadRowView: View {
             // Progress bar (only during download/postprocess)
             if task.status == .downloading || task.status == .postprocessing {
                 ProgressView(value: task.progress, total: 100)
-                    .tint(task.status == .postprocessing ? .orange : .blue)
-                    .accessibilityLabel("Download progress")
-                    .accessibilityValue("\(Int(task.progress)) percent")
+                    .tint(task.status == .postprocessing ? .orange : .accentColor)
+                    .accessibilityHidden(true)
 
                 HStack {
                     if task.status == .postprocessing {
@@ -128,7 +127,7 @@ struct DownloadRowView: View {
             .padding(.vertical, 3)
             .background(badgeColor.opacity(0.15), in: Capsule())
             .foregroundStyle(badgeColor)
-            .accessibilityLabel("Status: \(task.status.label)")
+            .accessibilityHidden(true)
     }
 
     private var badgeColor: Color {
