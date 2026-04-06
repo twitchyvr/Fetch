@@ -18,7 +18,6 @@ struct HistoryView: View {
                     systemImage: "clock.arrow.circlepath",
                     description: Text("Completed downloads will appear here.")
                 )
-                .auroraBackground(intensity: 0.12, speed: 0.4)
             } else {
                 List(filteredDownloads, selection: $selectedDownload) { download in
                     HistoryRowView(download: download)

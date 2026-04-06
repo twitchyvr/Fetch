@@ -69,10 +69,14 @@ final class DownloadManager {
         formatId: String?,
         formatDescription: String? = nil,
         preset: Preset? = nil,
+        additionalArgs: [String] = [],
         thumbnailURL: String? = nil,
         extractor: String? = nil,
         duration: Double? = nil
     ) {
+        var combinedArgs = preset?.asArguments() ?? []
+        combinedArgs += additionalArgs
+
         let task = DownloadTask(
             url: url,
             title: title,
@@ -80,7 +84,7 @@ final class DownloadManager {
             formatDescription: formatDescription,
             outputDirectory: preset?.outputDirectory ?? defaultOutputDirectory,
             outputTemplate: preset?.outputTemplate ?? "%(title)s.%(ext)s",
-            extraArgs: preset?.asArguments() ?? [],
+            extraArgs: combinedArgs,
             thumbnailURL: thumbnailURL,
             extractor: extractor,
             duration: duration
