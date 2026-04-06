@@ -62,7 +62,7 @@ struct DownloadRowView: View {
                     HStack(spacing: 8) {
                         if task.status == .postprocessing {
                             Text("Post-processing...")
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(Design.Colors.warning)
                         } else {
                             if let speed = task.speed {
                                 Text(speed).monospacedDigit()
