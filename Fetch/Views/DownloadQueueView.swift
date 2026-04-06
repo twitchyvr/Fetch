@@ -30,8 +30,8 @@ struct DownloadQueueView: View {
                     Button("Clear Finished") {
                         manager.removeCompleted()
                     }
-                    .disabled(manager.activeTasks.allSatisfy {
-                        $0.status == .downloading || $0.status == .queued
+                    .disabled(!manager.activeTasks.contains {
+                        $0.status == .completed || $0.status == .cancelled || $0.status == .failed
                     })
 
                     Button("Cancel All", role: .destructive) {
