@@ -7,6 +7,7 @@ struct HistoryView: View {
 
     @State private var searchText = ""
     @State private var selectedDownload: Download?
+    @State private var showClearConfirmation = false
 
     var body: some View {
         Group {
@@ -53,12 +54,24 @@ struct HistoryView: View {
             if !downloads.isEmpty {
                 ToolbarItem {
                     Button("Clear All", role: .destructive) {
-                        for download in downloads {
-                            modelContext.delete(download)
-                        }
+                        showClearConfirmation = true
                     }
                 }
             }
+        }
+        .confirmationDialog(
+            "Clear Download History",
+            isPresented: $showClearConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Clear All (\(downloads.count) items)", role: .destructive) {
+                for download in downloads {
+                    modelContext.delete(download)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will permanently delete your entire download history. Downloaded files will not be affected.")
         }
     }
 

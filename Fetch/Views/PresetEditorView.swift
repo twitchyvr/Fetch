@@ -11,45 +11,30 @@ struct PresetEditorView: View {
     var body: some View {
         HSplitView {
             // Preset list
-            VStack(spacing: 0) {
-                List(selection: $selectedPreset) {
-                    Section("Built-in") {
-                        ForEach(Preset.builtIn, id: \.name) { preset in
-                            Label(preset.name, systemImage: "star")
+            List(selection: $selectedPreset) {
+                Section("Built-in") {
+                    ForEach(Preset.builtIn, id: \.name) { preset in
+                        Label(preset.name, systemImage: "star")
+                            .tag(preset)
+                    }
+                }
+
+                if !presets.isEmpty {
+                    Section("Custom") {
+                        ForEach(presets) { preset in
+                            Label(preset.name, systemImage: "slider.horizontal.3")
                                 .tag(preset)
-                        }
-                    }
-
-                    if !presets.isEmpty {
-                        Section("Custom") {
-                            ForEach(presets) { preset in
-                                Label(preset.name, systemImage: "slider.horizontal.3")
-                                    .tag(preset)
-                                    .contextMenu {
-                                        Button("Delete", role: .destructive) {
-                                            modelContext.delete(preset)
-                                        }
+                                .contextMenu {
+                                    Button("Delete", role: .destructive) {
+                                        modelContext.delete(preset)
                                     }
-                            }
+                                }
                         }
                     }
                 }
-                .listStyle(.sidebar)
-                .frame(minWidth: 180)
-
-                Divider()
-
-                Button {
-                    let preset = Preset(name: "New Preset")
-                    modelContext.insert(preset)
-                    selectedPreset = preset
-                } label: {
-                    Label("New Preset", systemImage: "plus")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .buttonStyle(.plain)
-                .padding(8)
             }
+            .listStyle(.sidebar)
+            .frame(minWidth: 180)
 
             // Detail
             if let preset = selectedPreset {
@@ -63,6 +48,17 @@ struct PresetEditorView: View {
             }
         }
         .navigationTitle("Presets")
+        .toolbar {
+            ToolbarItem {
+                Button {
+                    let preset = Preset(name: "New Preset")
+                    modelContext.insert(preset)
+                    selectedPreset = preset
+                } label: {
+                    Label("New Preset", systemImage: "plus")
+                }
+            }
+        }
     }
 }
 
