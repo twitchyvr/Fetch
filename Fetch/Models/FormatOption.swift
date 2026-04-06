@@ -126,6 +126,35 @@ struct MediaInfo: Sendable {
     }
 }
 
+// MARK: - Playlist Types
+
+struct PlaylistInfo: Sendable {
+    let title: String
+    let id: String?
+    let uploader: String?
+    let entries: [PlaylistEntry]
+    let url: String
+
+    var totalDuration: TimeInterval? {
+        let durations = entries.compactMap(\.duration)
+        return durations.isEmpty ? nil : durations.reduce(0, +)
+    }
+}
+
+struct PlaylistEntry: Identifiable, Sendable {
+    let url: String
+    let title: String
+    let duration: TimeInterval?
+    let thumbnailURL: URL?
+    let index: Int
+
+    var id: String { url }
+
+    var formattedDuration: String? {
+        duration.flatMap { DurationFormatter.format($0) }
+    }
+}
+
 // MARK: - Shared Utilities
 
 enum DurationFormatter {

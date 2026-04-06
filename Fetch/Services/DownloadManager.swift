@@ -61,6 +61,10 @@ final class DownloadManager {
         try await service.listExtractors()
     }
 
+    func fetchPlaylistInfo(for url: String) async throws -> PlaylistInfo? {
+        try await service.getPlaylistInfo(for: url)
+    }
+
     // MARK: - Download Queue
 
     func enqueue(
@@ -72,22 +76,37 @@ final class DownloadManager {
         additionalArgs: [String] = [],
         thumbnailURL: String? = nil,
         extractor: String? = nil,
-        duration: Double? = nil
+        duration: Double? = nil,
+        playlistTitle: String? = nil,
+        playlistIndex: Int? = nil,
+        playlistId: String? = nil
     ) {
         var combinedArgs = preset?.asArguments() ?? []
         combinedArgs += additionalArgs
+
+        // Playlist downloads go to a subfolder
+        let outputDir: String
+        if let playlistTitle {
+            let safeTitle = playlistTitle.replacingOccurrences(of: "/", with: "-")
+            outputDir = (preset?.outputDirectory ?? defaultOutputDirectory) + "/\(safeTitle)"
+        } else {
+            outputDir = preset?.outputDirectory ?? defaultOutputDirectory
+        }
 
         let task = DownloadTask(
             url: url,
             title: title,
             formatId: formatId,
             formatDescription: formatDescription,
-            outputDirectory: preset?.outputDirectory ?? defaultOutputDirectory,
+            outputDirectory: outputDir,
             outputTemplate: preset?.outputTemplate ?? "%(title)s.%(ext)s",
             extraArgs: combinedArgs,
             thumbnailURL: thumbnailURL,
             extractor: extractor,
-            duration: duration
+            duration: duration,
+            playlistTitle: playlistTitle,
+            playlistIndex: playlistIndex,
+            playlistId: playlistId
         )
 
         activeTasks.append(task)
@@ -252,7 +271,10 @@ final class DownloadManager {
             fileSize: fileSize,
             thumbnailURL: task.thumbnailURL,
             extractor: task.extractor,
-            duration: task.duration
+            duration: task.duration,
+            playlistTitle: task.playlistTitle,
+            playlistIndex: task.playlistIndex,
+            playlistId: task.playlistId
         )
         context.insert(download)
         try? context.save()
@@ -273,6 +295,9 @@ final class DownloadTask: Identifiable, @unchecked Sendable {
     let thumbnailURL: String?
     let extractor: String?
     let duration: Double?
+    let playlistTitle: String?
+    let playlistIndex: Int?
+    let playlistId: String?
     let dateCreated = Date()
 
     var title: String?
@@ -295,7 +320,10 @@ final class DownloadTask: Identifiable, @unchecked Sendable {
         extraArgs: [String],
         thumbnailURL: String? = nil,
         extractor: String? = nil,
-        duration: Double? = nil
+        duration: Double? = nil,
+        playlistTitle: String? = nil,
+        playlistIndex: Int? = nil,
+        playlistId: String? = nil
     ) {
         self.url = url
         self.title = title
@@ -307,6 +335,9 @@ final class DownloadTask: Identifiable, @unchecked Sendable {
         self.thumbnailURL = thumbnailURL
         self.extractor = extractor
         self.duration = duration
+        self.playlistTitle = playlistTitle
+        self.playlistIndex = playlistIndex
+        self.playlistId = playlistId
     }
 
     enum DownloadTaskStatus: String {
