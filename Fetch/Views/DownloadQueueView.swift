@@ -1,9 +1,7 @@
 import SwiftUI
-import SwiftData
 
 struct DownloadQueueView: View {
     @Environment(DownloadManager.self) private var manager
-    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         Group {
@@ -30,14 +28,10 @@ struct DownloadQueueView: View {
             ToolbarItemGroup {
                 if !manager.activeTasks.isEmpty {
                     Button("Clear Finished") {
-                        // Save completed tasks to history first
-                        for task in manager.activeTasks where task.status == .completed {
-                            manager.saveToHistory(task, context: modelContext)
-                        }
                         manager.removeCompleted()
                     }
-                    .disabled(manager.activeTasks.allSatisfy {
-                        $0.status == .downloading || $0.status == .queued
+                    .disabled(!manager.activeTasks.contains {
+                        $0.status == .completed || $0.status == .cancelled || $0.status == .failed
                     })
 
                     Button("Cancel All", role: .destructive) {

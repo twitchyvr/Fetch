@@ -3,6 +3,7 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(DownloadManager.self) private var manager
+    @Environment(\.modelContext) private var modelContext
     @State private var selectedSection: SidebarSection = .newDownload
     @State private var clipboardMonitor = ClipboardMonitor()
     @State private var clipboardURL: String?
@@ -28,6 +29,7 @@ struct ContentView: View {
         .navigationSplitViewColumnWidth(min: 180, ideal: 200, max: 260)
         .frame(minWidth: 700, minHeight: 400)
         .onAppear {
+            manager.modelContext = modelContext
             clipboardMonitor.onURLDetected = { url in
                 clipboardURL = url
                 selectedSection = .newDownload
@@ -65,12 +67,13 @@ struct ClipboardBanner: View {
         HStack(spacing: 12) {
             Image(systemName: "link.badge.plus")
                 .foregroundStyle(.blue)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("URL detected in clipboard")
                     .font(.caption.bold())
                 Text(url)
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
@@ -87,10 +90,13 @@ struct ClipboardBanner: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
+            .accessibilityLabel("Dismiss")
         }
         .padding(12)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
         .padding()
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Clipboard URL detected: \(url)")
     }
 }
 

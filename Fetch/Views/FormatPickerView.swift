@@ -16,7 +16,7 @@ struct FormatPickerView: View {
                     .font(.headline)
                 Spacer()
                 Text("\(filteredFormats.count) formats")
-                    .font(.caption)
+                    .font(.callout)
                     .foregroundStyle(.secondary)
             }
             .padding()
@@ -56,11 +56,13 @@ struct FormatPickerView: View {
                     HStack(spacing: 4) {
                         if format.hasVideo {
                             Image(systemName: "film")
-                                .font(.caption2)
+                                .font(.caption)
+                                .accessibilityLabel("Video")
                         }
                         if format.hasAudio {
                             Image(systemName: "speaker.wave.2")
-                                .font(.caption2)
+                                .font(.caption)
+                                .accessibilityLabel("Audio")
                         }
                     }
                 }

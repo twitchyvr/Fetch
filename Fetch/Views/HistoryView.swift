@@ -81,6 +81,7 @@ struct HistoryRowView: View {
             Image(systemName: download.downloadStatus == .completed ? "checkmark.circle.fill" : "xmark.circle.fill")
                 .foregroundStyle(download.downloadStatus == .completed ? .green : .red)
                 .font(.title3)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(download.title)
@@ -90,7 +91,7 @@ struct HistoryRowView: View {
                 HStack(spacing: 8) {
                     if let extractor = download.extractor {
                         Text(extractor)
-                            .font(.caption2)
+                            .font(.caption)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
                             .background(.quaternary, in: Capsule())
@@ -98,19 +99,19 @@ struct HistoryRowView: View {
 
                     if let format = download.formatDescription {
                         Text(format)
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
 
                     if let duration = download.formattedDuration {
                         Text(duration)
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
 
                     if let size = download.formattedFileSize {
                         Text(size)
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -120,13 +121,14 @@ struct HistoryRowView: View {
 
             VStack(alignment: .trailing, spacing: 2) {
                 Text(download.dateCreated, style: .date)
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
                 Text(download.dateCreated, style: .time)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
     }
 }
