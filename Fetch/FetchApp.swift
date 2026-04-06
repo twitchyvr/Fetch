@@ -46,6 +46,19 @@ struct FetchApp: App {
                     showOnboarding = true
                 }
             }
+            CommandGroup(replacing: .appInfo) {
+                Button("About Fetch") {
+                    NSApp.orderFrontStandardAboutPanel(options: [
+                        .applicationName: "Fetch",
+                        .applicationVersion: "0.2.0",
+                        .version: "87",
+                        .credits: NSAttributedString(
+                            string: "A native macOS frontend for yt-dlp + FFmpeg.\n\nBuilt with SwiftUI, Swift 6, and zero dependencies.\nLicensed under AGPL-3.0.\n\n© 2026 Matt Rogers",
+                            attributes: [.font: NSFont.systemFont(ofSize: 11)]
+                        ),
+                    ])
+                }
+            }
         }
 
         Settings {
