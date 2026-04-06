@@ -29,6 +29,14 @@ struct OnboardingView: View {
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(.secondary)
+                } else {
+                    Button("Skip") {
+                        hasCompletedOnboarding = true
+                        isPresented = false
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.secondary)
+                    .font(.callout)
                 }
 
                 Spacer()
