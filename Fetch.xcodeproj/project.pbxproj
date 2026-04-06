@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		014950E33F4A647CEBFF455E /* AuroraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 295A40290D9CAEFC8E428801 /* AuroraView.swift */; };
+		2165D1FD7509CD7D0B03D34B /* TipBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7827C9F6121D8E7248BFB6F0 /* TipBanner.swift */; };
 		3493B290393BF124FD3FCD9F /* DownloadRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 810C9DED2B14FB17EFA4529A /* DownloadRowView.swift */; };
 		430DE1CBFBCAFB4760DA4655 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B850F5B3805294E911C842 /* ContentView.swift */; };
 		469A19EBEE2928AB5C294D4F /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F699F3560CD95002F95A2D /* SidebarView.swift */; };
@@ -20,6 +21,7 @@
 		8A23B88E7E891442E1235D64 /* YTDLPService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50FE8D8EB834FCF61AD11C6 /* YTDLPService.swift */; };
 		91A342B625E57B799CACE111 /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603D7BFBF85B8544C708F910 /* ClipboardMonitor.swift */; };
 		99CE97D28A4692EBA98EAD8F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 176D1E2BC292A264EFB80D97 /* Assets.xcassets */; };
+		AD1529C23B56930C1344ECF8 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A794F31E255F800586B666AB /* OnboardingView.swift */; };
 		B51F6B0FF426EDCB275EDA9B /* PresetEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F66D521F27304FC866DF21 /* PresetEditorView.swift */; };
 		BF4978831B551D7016E5DF7B /* DownloadQueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2204AA8F92B296FE42E112 /* DownloadQueueView.swift */; };
 		CC20404951AB80477EA91C7A /* NewDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4E5FA37B9156D3146D1561 /* NewDownloadView.swift */; };
@@ -57,10 +59,12 @@
 		4D5AD7256382F628128A1A8F /* FetchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchApp.swift; sourceTree = "<group>"; };
 		603D7BFBF85B8544C708F910 /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardMonitor.swift; sourceTree = "<group>"; };
 		6C2623AAB3EB28232466FDDE /* FormatPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatPickerView.swift; sourceTree = "<group>"; };
+		7827C9F6121D8E7248BFB6F0 /* TipBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipBanner.swift; sourceTree = "<group>"; };
 		7FDB1C316F100F78CCBAD1B1 /* Download.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Download.swift; sourceTree = "<group>"; };
 		810C9DED2B14FB17EFA4529A /* DownloadRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadRowView.swift; sourceTree = "<group>"; };
 		8E96BAC29AB9C3CE3DAC8C30 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		A5F8777C9ABE883DC2DE1A33 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A794F31E255F800586B666AB /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		B2015C2DFB9042CD95C78E28 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		BE17EB2ADCBD3436D999E2DC /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		C50FE8D8EB834FCF61AD11C6 /* YTDLPService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTDLPService.swift; sourceTree = "<group>"; };
@@ -120,10 +124,12 @@
 				6C2623AAB3EB28232466FDDE /* FormatPickerView.swift */,
 				BE17EB2ADCBD3436D999E2DC /* HistoryView.swift */,
 				3A4E5FA37B9156D3146D1561 /* NewDownloadView.swift */,
+				A794F31E255F800586B666AB /* OnboardingView.swift */,
 				02F66D521F27304FC866DF21 /* PresetEditorView.swift */,
 				A5F8777C9ABE883DC2DE1A33 /* SettingsView.swift */,
 				03F699F3560CD95002F95A2D /* SidebarView.swift */,
 				DC91BF95A053821F8DB23D3F /* StatsView.swift */,
+				7827C9F6121D8E7248BFB6F0 /* TipBanner.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -262,11 +268,13 @@
 				5F89860AE5866DDA04D7D767 /* HistoryView.swift in Sources */,
 				CC20404951AB80477EA91C7A /* NewDownloadView.swift in Sources */,
 				E95B726F299DDC86547F81B4 /* NotificationService.swift in Sources */,
+				AD1529C23B56930C1344ECF8 /* OnboardingView.swift in Sources */,
 				782C0E06D94E3E88CB598E15 /* Preset.swift in Sources */,
 				B51F6B0FF426EDCB275EDA9B /* PresetEditorView.swift in Sources */,
 				EED7DA11CD8FA1102C2DD1B3 /* SettingsView.swift in Sources */,
 				469A19EBEE2928AB5C294D4F /* SidebarView.swift in Sources */,
 				D5B9AFEE091C6D5F3389FF81 /* StatsView.swift in Sources */,
+				2165D1FD7509CD7D0B03D34B /* TipBanner.swift in Sources */,
 				8A23B88E7E891442E1235D64 /* YTDLPService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
