@@ -40,13 +40,14 @@ struct NewDownloadView: View {
         .navigationTitle("New Download")
         .sheet(isPresented: $showPlaylistPicker) {
             if let playlist = playlistInfo {
-                PlaylistPickerView(playlist: playlist, isPresented: $showPlaylistPicker) { entries in
+                PlaylistPickerView(playlist: playlist, isPresented: $showPlaylistPicker) { entries, modeArgs in
+                    let combinedArgs = advancedArgs + modeArgs
                     for entry in entries {
                         manager.enqueue(
                             url: entry.url,
                             title: entry.title,
                             formatId: nil,
-                            additionalArgs: advancedArgs,
+                            additionalArgs: combinedArgs,
                             thumbnailURL: entry.thumbnailURL?.absoluteString,
                             duration: entry.duration,
                             playlistTitle: playlist.title,
