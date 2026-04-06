@@ -142,7 +142,7 @@ struct HistoryRowView: View {
                     if !fileExists {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.system(size: 10))
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(Design.Colors.warning)
                             .offset(x: 4, y: 4)
                             .accessibilityLabel("File missing from disk")
                     }
@@ -188,7 +188,7 @@ struct HistoryRowView: View {
                     if !fileExists {
                         Text("File missing")
                             .font(.caption)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(Design.Colors.warning)
                     }
                 }
             }

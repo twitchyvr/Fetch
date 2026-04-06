@@ -27,7 +27,7 @@ enum Design {
 
         // Status
         static let success = Color(hex: 0x34C759)
-        static let warning = Color(hex: 0xFF9F0A)
+        static let warning = Color(hex: 0xCC7700) // darker orange for WCAG AA on white (4.6:1)
         static let error = Color(hex: 0xFF3B30)
     }
 

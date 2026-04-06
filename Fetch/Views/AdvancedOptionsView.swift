@@ -253,7 +253,7 @@ struct AdvancedOptionsView: View {
             if !password.isEmpty {
                 Label("Passwords are passed as process arguments and may be visible to other users on this Mac. Prefer \"Cookies From Browser\" for safer authentication.", systemImage: "exclamationmark.triangle.fill")
                     .font(.caption)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(Design.Colors.warning)
             }
         }
     }

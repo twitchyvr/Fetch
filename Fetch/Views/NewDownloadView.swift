@@ -236,7 +236,7 @@ struct NewDownloadView: View {
     private func errorSection(_ message: String) -> some View {
         HStack(spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(.orange)
+                .foregroundStyle(Design.Colors.warning)
             Text(message)
                 .font(.callout)
             Spacer()
@@ -364,7 +364,7 @@ struct NewDownloadView: View {
                 VStack(alignment: .leading, spacing: Design.Spacing.sm) {
                     Label("Suggestions", systemImage: "lightbulb.fill")
                         .font(.caption.bold())
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(Design.Colors.warning)
 
                     ForEach(suggestions, id: \.self) { suggestion in
                         HStack(spacing: Design.Spacing.sm) {
