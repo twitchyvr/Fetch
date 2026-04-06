@@ -359,13 +359,14 @@ struct NewDownloadView: View {
             .font(.callout)
 
             // Contextual suggestions
-            if !suggestionsForMedia(info).isEmpty {
+            let suggestions = suggestionsForMedia(info)
+            if !suggestions.isEmpty {
                 VStack(alignment: .leading, spacing: Design.Spacing.sm) {
                     Label("Suggestions", systemImage: "lightbulb.fill")
                         .font(.caption.bold())
                         .foregroundStyle(.orange)
 
-                    ForEach(suggestionsForMedia(info), id: \.self) { suggestion in
+                    ForEach(suggestions, id: \.self) { suggestion in
                         HStack(spacing: Design.Spacing.sm) {
                             Image(systemName: "chevron.right.circle.fill")
                                 .font(.caption)
