@@ -23,6 +23,7 @@
 		B51F6B0FF426EDCB275EDA9B /* PresetEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F66D521F27304FC866DF21 /* PresetEditorView.swift */; };
 		BF4978831B551D7016E5DF7B /* DownloadQueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2204AA8F92B296FE42E112 /* DownloadQueueView.swift */; };
 		CC20404951AB80477EA91C7A /* NewDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4E5FA37B9156D3146D1561 /* NewDownloadView.swift */; };
+		D5B9AFEE091C6D5F3389FF81 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC91BF95A053821F8DB23D3F /* StatsView.swift */; };
 		E95B726F299DDC86547F81B4 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2015C2DFB9042CD95C78E28 /* NotificationService.swift */; };
 		EED7DA11CD8FA1102C2DD1B3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F8777C9ABE883DC2DE1A33 /* SettingsView.swift */; };
 		F3FD90290BB6125BD843AE6F /* FormatPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C2623AAB3EB28232466FDDE /* FormatPickerView.swift */; };
@@ -66,6 +67,7 @@
 		CB4BE44D5F65BC39A95ED47F /* FetchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchTests.swift; sourceTree = "<group>"; };
 		D793FA63DCCCCC5C1490FB6F /* Preset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preset.swift; sourceTree = "<group>"; };
 		DC349A2094125985259419FA /* FetchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FetchTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC91BF95A053821F8DB23D3F /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -121,6 +123,7 @@
 				02F66D521F27304FC866DF21 /* PresetEditorView.swift */,
 				A5F8777C9ABE883DC2DE1A33 /* SettingsView.swift */,
 				03F699F3560CD95002F95A2D /* SidebarView.swift */,
+				DC91BF95A053821F8DB23D3F /* StatsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -263,6 +266,7 @@
 				B51F6B0FF426EDCB275EDA9B /* PresetEditorView.swift in Sources */,
 				EED7DA11CD8FA1102C2DD1B3 /* SettingsView.swift in Sources */,
 				469A19EBEE2928AB5C294D4F /* SidebarView.swift in Sources */,
+				D5B9AFEE091C6D5F3389FF81 /* StatsView.swift in Sources */,
 				8A23B88E7E891442E1235D64 /* YTDLPService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
