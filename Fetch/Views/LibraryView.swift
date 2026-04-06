@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 struct LibraryView: View {
     @Environment(\.modelContext) private var modelContext
@@ -14,6 +15,7 @@ struct LibraryView: View {
     @State private var filterExtractor: String? = nil
     @State private var filterFileStatus: FileStatusFilter = .all
     @State private var filterFormatType: FormatTypeFilter = .all
+    @State private var filterFavorites = false
     @State private var viewMode: ViewMode = .list
     @State private var fileExistsCache: [String: Bool] = [:]
 
@@ -126,6 +128,8 @@ struct LibraryView: View {
                     }
                 }
 
+                Toggle("Favorites Only", isOn: $filterFavorites)
+
                 if hasActiveFilters {
                     Divider()
                     Button("Clear Filters") { clearFilters() }
@@ -134,6 +138,18 @@ struct LibraryView: View {
                 Label("Filter & Sort", systemImage: hasActiveFilters ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
             }
             .accessibilityLabel("Filter and sort options")
+
+            Menu {
+                Button("Export as JSON") {
+                    exportAsJSON()
+                }
+                Button("Export as CSV") {
+                    exportAsCSV()
+                }
+            } label: {
+                Label("Export", systemImage: "square.and.arrow.up")
+            }
+            .accessibilityLabel("Export library")
 
             Text("\(filteredAndSorted.count) items")
                 .font(.caption)
@@ -164,6 +180,10 @@ struct LibraryView: View {
             NSPasteboard.general.setString(download.url, forType: .string)
         }
 
+        Button(download.isFavorite ? "Remove from Favorites" : "Add to Favorites") {
+            download.isFavorite.toggle()
+        }
+
         Divider()
 
         Button("Delete from Library", role: .destructive) {
@@ -185,6 +205,11 @@ struct LibraryView: View {
                 || ($0.extractor?.lowercased().contains(query) ?? false)
                 || ($0.formatDescription?.lowercased().contains(query) ?? false)
             }
+        }
+
+        // Filter: favorites
+        if filterFavorites {
+            result = result.filter { $0.isFavorite }
         }
 
         // Filter: extractor
@@ -242,13 +267,14 @@ struct LibraryView: View {
     }
 
     private var hasActiveFilters: Bool {
-        filterExtractor != nil || filterFileStatus != .all || filterFormatType != .all
+        filterExtractor != nil || filterFileStatus != .all || filterFormatType != .all || filterFavorites
     }
 
     private func clearFilters() {
         filterExtractor = nil
         filterFileStatus = .all
         filterFormatType = .all
+        filterFavorites = false
     }
 
     // MARK: - File Existence
@@ -264,6 +290,73 @@ struct LibraryView: View {
         }.value
         fileExistsCache = results
     }
+
+    // MARK: - Export
+
+    private func exportAsJSON() {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "fetch-library.json"
+        panel.allowedContentTypes = [.json]
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+
+        let records = filteredAndSorted.map { download -> [String: Any] in
+            var record: [String: Any] = [
+                "url": download.url,
+                "title": download.title,
+                "dateCreated": ISO8601DateFormatter().string(from: download.dateCreated),
+                "isFavorite": download.isFavorite
+            ]
+            if let extractor = download.extractor { record["extractor"] = extractor }
+            if let duration = download.duration { record["duration"] = duration }
+            if let outputPath = download.outputPath { record["outputPath"] = outputPath }
+            if let fileSize = download.fileSize { record["fileSize"] = fileSize }
+            return record
+        }
+
+        do {
+            let data = try JSONSerialization.data(withJSONObject: records, options: [.prettyPrinted, .sortedKeys])
+            try data.write(to: url)
+        } catch {
+            NSLog("Failed to export JSON: \(error.localizedDescription)")
+        }
+    }
+
+    private func exportAsCSV() {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "fetch-library.csv"
+        panel.allowedContentTypes = [UTType(filenameExtension: "csv") ?? .commaSeparatedText]
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+
+        var csv = "url,title,extractor,duration,dateCreated,outputPath,fileSize,isFavorite\n"
+        let dateFormatter = ISO8601DateFormatter()
+
+        for download in filteredAndSorted {
+            let fields: [String] = [
+                csvEscape(download.url),
+                csvEscape(download.title),
+                csvEscape(download.extractor ?? ""),
+                download.duration.map { String($0) } ?? "",
+                dateFormatter.string(from: download.dateCreated),
+                csvEscape(download.outputPath ?? ""),
+                download.fileSize.map { String($0) } ?? "",
+                String(download.isFavorite)
+            ]
+            csv += fields.joined(separator: ",") + "\n"
+        }
+
+        do {
+            try csv.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            NSLog("Failed to export CSV: \(error.localizedDescription)")
+        }
+    }
+
+    private func csvEscape(_ value: String) -> String {
+        if value.contains(",") || value.contains("\"") || value.contains("\n") {
+            return "\"" + value.replacingOccurrences(of: "\"", with: "\"\"") + "\""
+        }
+        return value
+    }
 }
 
 // MARK: - Library Row View
@@ -277,11 +370,19 @@ struct LibraryRowView: View {
             thumbnailView
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(download.title)
-                    .font(.callout.weight(.semibold))
-                    .lineLimit(1)
-                    .tracking(-0.2)
-                    .opacity(fileExists ? 1.0 : 0.5)
+                HStack(spacing: 4) {
+                    if download.isFavorite {
+                        Image(systemName: "star.fill")
+                            .font(.caption)
+                            .foregroundStyle(.yellow)
+                            .accessibilityLabel("Favorited")
+                    }
+                    Text(download.title)
+                        .font(.callout.weight(.semibold))
+                        .lineLimit(1)
+                        .tracking(-0.2)
+                        .opacity(fileExists ? 1.0 : 0.5)
+                }
 
                 HStack(spacing: 6) {
                     if let extractor = download.extractor {
@@ -428,10 +529,18 @@ struct LibraryGridItemView: View {
 
             // Info
             VStack(alignment: .leading, spacing: 2) {
-                Text(download.title)
-                    .font(.caption.weight(.semibold))
-                    .lineLimit(2)
-                    .opacity(fileExists ? 1.0 : 0.5)
+                HStack(spacing: 3) {
+                    if download.isFavorite {
+                        Image(systemName: "star.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.yellow)
+                            .accessibilityLabel("Favorited")
+                    }
+                    Text(download.title)
+                        .font(.caption.weight(.semibold))
+                        .lineLimit(2)
+                        .opacity(fileExists ? 1.0 : 0.5)
+                }
 
                 HStack(spacing: 4) {
                     if let extractor = download.extractor {

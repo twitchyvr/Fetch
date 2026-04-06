@@ -17,6 +17,9 @@ final class Download {
     var dateCompleted: Date?
     var errorMessage: String?
 
+    // Favorites
+    var isFavorite: Bool
+
     // Playlist / Collection grouping
     var playlistTitle: String?
     var playlistIndex: Int?
@@ -33,6 +36,7 @@ final class Download {
         thumbnailURL: String? = nil,
         extractor: String? = nil,
         duration: Double? = nil,
+        isFavorite: Bool = false,
         playlistTitle: String? = nil,
         playlistIndex: Int? = nil,
         playlistId: String? = nil
@@ -47,6 +51,7 @@ final class Download {
         self.thumbnailURL = thumbnailURL
         self.extractor = extractor
         self.duration = duration
+        self.isFavorite = isFavorite
         self.playlistTitle = playlistTitle
         self.playlistIndex = playlistIndex
         self.playlistId = playlistId

@@ -9,6 +9,7 @@ struct HistoryView: View {
     @State private var searchText = ""
     @State private var selectedDownload: Download?
     @State private var showClearConfirmation = false
+    @State private var showFavoritesOnly = false
 
     var body: some View {
         Group {
@@ -47,6 +48,9 @@ struct HistoryView: View {
                                     duration: download.duration
                                 )
                             }
+                            Button(download.isFavorite ? "Remove from Favorites" : "Add to Favorites") {
+                                download.isFavorite.toggle()
+                            }
                             Divider()
                             Button("Delete", role: .destructive) {
                                 modelContext.delete(download)
@@ -60,6 +64,15 @@ struct HistoryView: View {
         .navigationTitle("History")
         .toolbar {
             if !downloads.isEmpty {
+                ToolbarItem {
+                    Toggle(isOn: $showFavoritesOnly) {
+                        Image(systemName: showFavoritesOnly ? "star.fill" : "star")
+                            .foregroundStyle(showFavoritesOnly ? .yellow : .secondary)
+                    }
+                    .toggleStyle(.button)
+                    .help("Show favorites only")
+                    .accessibilityLabel("Filter favorites")
+                }
                 ToolbarItem {
                     Button("Clear All", role: .destructive) {
                         showClearConfirmation = true
@@ -84,13 +97,22 @@ struct HistoryView: View {
     }
 
     private var filteredDownloads: [Download] {
-        guard !searchText.isEmpty else { return downloads }
-        let query = searchText.lowercased()
-        return downloads.filter {
-            $0.title.lowercased().contains(query)
-            || $0.url.lowercased().contains(query)
-            || ($0.extractor?.lowercased().contains(query) ?? false)
+        var result = downloads
+
+        if showFavoritesOnly {
+            result = result.filter { $0.isFavorite }
         }
+
+        if !searchText.isEmpty {
+            let query = searchText.lowercased()
+            result = result.filter {
+                $0.title.lowercased().contains(query)
+                || $0.url.lowercased().contains(query)
+                || ($0.extractor?.lowercased().contains(query) ?? false)
+            }
+        }
+
+        return result
     }
 }
 
