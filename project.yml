@@ -1,0 +1,35 @@
+name: Fetch
+options:
+  bundleIdPrefix: com.mattrogers
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+targets:
+  Fetch:
+    type: application
+    platform: macOS
+    sources:
+      - path: Fetch
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mattrogers.Fetch
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: 1
+        CODE_SIGN_ENTITLEMENTS: Fetch/Fetch.entitlements
+        INFOPLIST_FILE: Fetch/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_HARDENED_RUNTIME: YES
+  FetchTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: FetchTests
+    dependencies:
+      - target: Fetch
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mattrogers.FetchTests
