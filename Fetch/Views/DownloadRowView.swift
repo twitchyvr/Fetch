@@ -2,105 +2,126 @@ import SwiftUI
 
 struct DownloadRowView: View {
     let task: DownloadTask
+    @State private var isHovered = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            // Title row
-            HStack {
-                if task.status == .downloading {
-                    PulsingGlow(color: .accentColor)
-                } else {
-                    Image(systemName: task.status.icon)
-                        .foregroundStyle(statusColor)
-                        .font(.callout)
-                        .accessibilityHidden(true)
-                }
+        HStack(spacing: 12) {
+            // Thumbnail or status icon
+            ZStack {
+                if let thumbURL = task.thumbnailURL, let url = URL(string: thumbURL) {
+                    AsyncImage(url: url) { image in
+                        image.resizable().aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        statusIconView
+                    }
+                    .frame(width: 64, height: 40)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
 
+                    // Overlay progress ring on thumbnail during download
+                    if task.status == .downloading || task.status == .postprocessing {
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(.black.opacity(0.4))
+                            .frame(width: 64, height: 40)
+                        Text("\(Int(task.progress))%")
+                            .font(.caption.bold().monospacedDigit())
+                            .foregroundStyle(.white)
+                    }
+                } else {
+                    statusIconView
+                        .frame(width: 40, height: 40)
+                }
+            }
+
+            // Content
+            VStack(alignment: .leading, spacing: 4) {
+                // Title
                 Text(task.title ?? task.url)
                     .font(.callout.weight(.semibold))
                     .lineLimit(1)
                     .tracking(-0.2)
 
-                Spacer()
+                // Progress bar
+                if task.status == .downloading || task.status == .postprocessing {
+                    ProgressView(value: task.progress, total: 100)
+                        .progressViewStyle(ShimmerProgressViewStyle())
+                        .accessibilityHidden(true)
 
-                statusBadge
-            }
-
-            // Progress bar (only during download/postprocess)
-            if task.status == .downloading || task.status == .postprocessing {
-                ProgressView(value: task.progress, total: 100)
-                    .progressViewStyle(ShimmerProgressViewStyle())
-                    .accessibilityHidden(true)
-
-                HStack {
-                    if task.status == .postprocessing {
-                        Text("Post-processing...")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                    } else {
-                        Text("\(Int(task.progress))%")
-                            .font(.caption.monospacedDigit().bold())
-
-                        if let speed = task.speed {
-                            Text(speed)
-                                .font(.caption.monospacedDigit())
-                                .foregroundStyle(.secondary)
+                    HStack(spacing: 8) {
+                        if task.status == .postprocessing {
+                            Text("Post-processing...")
+                                .foregroundStyle(.orange)
+                        } else {
+                            if let speed = task.speed {
+                                Text(speed).monospacedDigit()
+                            }
+                            if let eta = task.eta {
+                                Text("ETA \(eta)").monospacedDigit()
+                            }
                         }
-
-                        if let eta = task.eta {
-                            Text("ETA \(eta)")
-                                .font(.caption.monospacedDigit())
-                                .foregroundStyle(.secondary)
+                        Spacer()
+                        if let size = task.totalSize {
+                            Text(size)
                         }
                     }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
 
-                    Spacer()
+                // Error
+                if let error = task.error, task.status == .failed {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                        .lineLimit(2)
+                }
 
-                    if let size = task.totalSize {
-                        Text(size)
+                // Metadata row
+                HStack(spacing: 6) {
+                    if let extractor = task.extractor {
+                        Text(extractor)
+                            .font(.caption)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(.quaternary, in: Capsule())
+                    }
+                    if let formatDesc = task.formatDescription {
+                        Text(formatDesc)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                }
-            }
-
-            // Error message
-            if let error = task.error, task.status == .failed {
-                Text(error)
-                    .font(.caption)
-                    .foregroundStyle(.red)
-                    .lineLimit(2)
-                    .accessibilityLabel("Error: \(error)")
-            }
-
-            // Metadata row
-            HStack(spacing: 8) {
-                if let extractor = task.extractor {
-                    Text(extractor)
+                    Spacer()
+                    Text(task.url)
                         .font(.caption)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(.quaternary, in: Capsule())
+                        .foregroundStyle(.tertiary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                        .frame(maxWidth: 200)
                 }
-
-                if let formatDesc = task.formatDescription {
-                    Text(formatDesc)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-
-                Text(task.url)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
             }
+
+            // Status badge
+            statusBadge
         }
-        .padding(.vertical, 6)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(isHovered ? Color.primary.opacity(0.03) : .clear)
+        )
+        .onHover { isHovered = $0 }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityDescription)
+    }
+
+    @ViewBuilder
+    private var statusIconView: some View {
+        if task.status == .downloading {
+            PulsingGlow(color: Color.accentColor)
+        } else {
+            Image(systemName: task.status.icon)
+                .foregroundStyle(statusColor)
+                .font(.title3)
+        }
     }
 
     private var accessibilityDescription: String {
@@ -117,7 +138,7 @@ struct DownloadRowView: View {
     private var statusColor: Color {
         switch task.status {
         case .queued: .secondary
-        case .downloading: .accentColor
+        case .downloading: Color.accentColor
         case .postprocessing: .orange
         case .completed: .green
         case .failed: .red
@@ -130,8 +151,8 @@ struct DownloadRowView: View {
         Text(task.status.label)
             .font(.caption.bold())
             .padding(.horizontal, 8)
-            .padding(.vertical, 3)
-            .background(statusColor.opacity(0.15), in: Capsule())
+            .padding(.vertical, 4)
+            .background(statusColor.opacity(0.12), in: Capsule())
             .foregroundStyle(statusColor)
             .accessibilityHidden(true)
     }

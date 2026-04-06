@@ -96,60 +96,95 @@ struct HistoryView: View {
 
 struct HistoryRowView: View {
     let download: Download
+    @State private var fileExists = true
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: download.downloadStatus == .completed ? "checkmark.circle.fill" : "xmark.circle.fill")
-                .foregroundStyle(download.downloadStatus == .completed ? .green : .red)
-                .font(.title3)
-                .accessibilityHidden(true)
+            // Thumbnail or status icon
+            if let thumbStr = download.thumbnailURL, let url = URL(string: thumbStr) {
+                AsyncImage(url: url) { image in
+                    image.resizable().aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(.quaternary)
+                        .overlay {
+                            Image(systemName: download.downloadStatus == .completed ? "checkmark" : "xmark")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                        }
+                }
+                .frame(width: 56, height: 34)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .overlay(alignment: .bottomTrailing) {
+                    if !fileExists {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.orange)
+                            .offset(x: 4, y: 4)
+                    }
+                }
+            } else {
+                Image(systemName: download.downloadStatus == .completed ? "checkmark.circle.fill" : "xmark.circle.fill")
+                    .foregroundStyle(download.downloadStatus == .completed ? .green : .red)
+                    .font(.title3)
+                    .frame(width: 56)
+                    .accessibilityHidden(true)
+            }
 
+            // Content
             VStack(alignment: .leading, spacing: 3) {
                 Text(download.title)
-                    .font(.callout.bold())
+                    .font(.callout.weight(.semibold))
                     .lineLimit(1)
+                    .tracking(-0.2)
+                    .opacity(fileExists ? 1.0 : 0.5)
 
-                HStack(spacing: 8) {
+                HStack(spacing: 6) {
                     if let extractor = download.extractor {
                         Text(extractor)
                             .font(.caption)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
                             .background(.quaternary, in: Capsule())
                     }
 
                     if let format = download.formatDescription {
-                        Text(format)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                        Text(format).font(.caption).foregroundStyle(.secondary)
                     }
 
                     if let duration = download.formattedDuration {
-                        Text(duration)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                        Label(duration, systemImage: "clock")
+                            .font(.caption).foregroundStyle(.secondary)
                     }
 
                     if let size = download.formattedFileSize {
-                        Text(size)
+                        Text(size).font(.caption).foregroundStyle(.secondary)
+                    }
+
+                    if !fileExists {
+                        Text("File missing")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.orange)
                     }
                 }
             }
 
             Spacer()
 
+            // Date
             VStack(alignment: .trailing, spacing: 2) {
-                Text(download.dateCreated, style: .date)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Text(download.dateCreated, style: .time)
+                Text(download.dateCreated, style: .relative)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 6)
         .accessibilityElement(children: .combine)
+        .task {
+            // Check if file still exists on disk
+            if let path = download.outputPath {
+                fileExists = FileManager.default.fileExists(atPath: path)
+            }
+        }
     }
 }
