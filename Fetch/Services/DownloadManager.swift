@@ -189,12 +189,19 @@ final class DownloadManager {
     private func startDownload(_ task: DownloadTask) {
         task.status = .downloading
 
+        // Copy task properties to locals before crossing actor boundary
+        // to avoid data race on @unchecked Sendable DownloadTask
+        let taskURL = task.url
+        let taskFormatId = task.formatId
+        let taskOutputDir = task.outputDirectory
+        let taskOutputTemplate = task.outputTemplate
+        let taskExtraArgs = task.extraArgs
+
         Task.detached { [service, weak self] in
             do {
                 // Remove format flag from extraArgs if we already have a formatId
-                var extraArgs = task.extraArgs
-                if task.formatId != nil {
-                    // Remove -f/--format from extra args to avoid conflict
+                var extraArgs = taskExtraArgs
+                if taskFormatId != nil {
                     var filtered: [String] = []
                     var skip = false
                     for arg in extraArgs {
@@ -206,10 +213,10 @@ final class DownloadManager {
                 }
 
                 let outputPath = try await service.download(
-                    url: task.url,
-                    formatId: task.formatId,
-                    outputDirectory: task.outputDirectory,
-                    outputTemplate: task.outputTemplate,
+                    url: taskURL,
+                    formatId: taskFormatId,
+                    outputDirectory: taskOutputDir,
+                    outputTemplate: taskOutputTemplate,
                     extraArgs: extraArgs,
                     onProcessStart: { process in
                         Task { @MainActor in
