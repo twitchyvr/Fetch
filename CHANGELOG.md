@@ -14,8 +14,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 - **AI-friendly suggestions** — contextual tips (Whisper, podcast AI, auto-subs, SponsorBlock)
 - **Thumbnail previews** — in download queue and history rows
 - **File tracking** — history detects when downloaded files are deleted/moved
+- **Playlist detection + picker** — auto-detect playlists, enumerate entries with thumbnails, 5 download modes (Best, Audio Only, Video Only, Transcript Only, Audio+Transcript), audio format picker, clickable duration toggle
+- **FFmpeg Lab** — 8 operation panels: Remux, Audio, Video, Filters, Trim, Extract, Metadata, AI Presets. FfmpegService actor with ffprobe analysis, async processing, command preview
+- **Media Library** — catalog all downloads with sort/filter/search, list+grid views, file-exists tracking, context menus
+- **Transcript/subtitle support** — parse available languages from yt-dlp JSON, language picker, format (SRT/VTT/ASS), embed/separate file, auto-generated captions. Shows "N subtitle languages available"
+- **AI export presets** — 5 AI-focused built-in presets: Whisper-ready WAV, Transcript Only, Audio+Transcript, Vision Frames 1fps, Music Lossless FLAC. Separate "AI & Research" section in Presets
+- **Expanded advanced options** — AdvancedOptionsView with subtitles, post-processing (remux, extract audio, chapter split), network (proxy, geo bypass), authentication (cookies, username/password), output (template, speed limit, no-overwrites, write-info-json, write-thumbnail)
+- **Scheduled downloads** — queue for later with date/time, .scheduled status with purple badge + countdown timer, auto-starts at scheduled time
+- **Premium visual design** — blue-tinted dual-layer shadows (Stripe pattern), GradientButtonStyle (blue→purple), GradientProgressStyle (animated gradient fill), HoverLiftModifier (card elevation on hover), conservative radii
+- **URL parser test suite** — 14 tests covering plain text, JSON, dedup, edge cases, 500-URL stress test
 - **Pulsing glow indicator** — animated dot for active downloads
-- Shimmer gradient effect on download progress bars
+- Animated gradient progress bars (blue→purple)
 - macOS notifications on download completion with "Show in Finder" and "Open" actions
 - Dock badge showing active download count (only active, not completed)
 - Drag-and-drop URL support (URLs + text files) in New Download view
