@@ -8,6 +8,16 @@ A native macOS frontend for [yt-dlp](https://github.com/yt-dlp/yt-dlp), built wi
 
 Fetch wraps yt-dlp with a polished native interface — paste a URL, pick a format, download. It dynamically discovers yt-dlp's capabilities at runtime, so when yt-dlp updates with new features or site support, Fetch adapts without needing a rebuild.
 
+## Screenshots
+
+| New Download | Download Queue | History |
+|:---:|:---:|:---:|
+| ![New Download](screenshots/new-download-view.png) | ![Queue](screenshots/queue-view.png) | ![History](screenshots/history-view.png) |
+
+| Presets | Settings |
+|:---:|:---:|
+| ![Presets](screenshots/presets-view.png) | ![Settings](screenshots/settings-view.png) |
+
 ## Features
 
 - **Native macOS app** — SwiftUI, Apple HIG compliant, feels like a first-party utility
