@@ -10,7 +10,7 @@ struct ContentView: View {
 
     var body: some View {
         NavigationSplitView {
-            SidebarView(selection: $selectedSection, activeCount: manager.activeTasks.count)
+            SidebarView(selection: $selectedSection, activeCount: manager.activeDownloadCount)
                 .navigationSplitViewColumnWidth(min: 200, ideal: 220, max: 280)
         } detail: {
             Group {

@@ -7,10 +7,14 @@ struct DownloadRowView: View {
         VStack(alignment: .leading, spacing: 6) {
             // Title row
             HStack {
-                Image(systemName: task.status.icon)
-                    .foregroundStyle(statusColor)
-                    .font(.callout)
-                    .accessibilityHidden(true)
+                if task.status == .downloading {
+                    PulsingGlow(color: .accentColor)
+                } else {
+                    Image(systemName: task.status.icon)
+                        .foregroundStyle(statusColor)
+                        .font(.callout)
+                        .accessibilityHidden(true)
+                }
 
                 Text(task.title ?? task.url)
                     .font(.callout.weight(.semibold))

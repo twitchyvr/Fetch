@@ -6,6 +6,9 @@ import SwiftUI
 @MainActor
 final class DownloadManager {
     private(set) var activeTasks: [DownloadTask] = []
+    var activeDownloadCount: Int {
+        activeTasks.filter { $0.status == .downloading || $0.status == .queued || $0.status == .postprocessing }.count
+    }
     private(set) var ytdlpVersion: String?
     private(set) var updateAvailable = false
     private(set) var isCheckingVersion = false
