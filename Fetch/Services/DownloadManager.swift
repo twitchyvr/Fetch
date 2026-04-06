@@ -12,8 +12,9 @@ final class DownloadManager {
 
     var maxConcurrentDownloads = 3
     var defaultOutputDirectory = "~/Downloads/Fetch"
+    var modelContext: ModelContext?
 
-    private let service = YTDLPService()
+    let service = YTDLPService()
     private var runningCount = 0
 
     // MARK: - Version & Updates
@@ -159,6 +160,9 @@ final class DownloadManager {
                     task.status = .completed
                     task.outputPath = outputPath
                     task.progress = 100
+                    if let context = self?.modelContext {
+                        self?.saveToHistory(task, context: context)
+                    }
                     self?.processQueue()
                 }
             } catch {

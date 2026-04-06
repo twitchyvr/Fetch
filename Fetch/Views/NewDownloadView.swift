@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 struct NewDownloadView: View {
     @Environment(DownloadManager.self) private var manager
@@ -15,6 +16,7 @@ struct NewDownloadView: View {
     @State private var isLoading = false
     @State private var error: String?
     @State private var showFormatPicker = false
+    @State private var isDropTargeted = false
 
     var body: some View {
         ScrollView {
@@ -49,7 +51,7 @@ struct NewDownloadView: View {
                 .font(.headline)
 
             HStack(spacing: 8) {
-                TextField("Paste a video or audio URL...", text: $urlText)
+                TextField("Paste or drop a video/audio URL...", text: $urlText)
                     .textFieldStyle(.roundedBorder)
                     .onSubmit { fetchInfo() }
 
@@ -65,6 +67,14 @@ struct NewDownloadView: View {
                     .buttonStyle(.borderedProminent)
                     .disabled(urlText.isEmpty || isLoading)
             }
+        }
+        .padding(isDropTargeted ? 4 : 0)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(.blue, lineWidth: isDropTargeted ? 2 : 0)
+        )
+        .onDrop(of: [.url, .plainText], isTargeted: $isDropTargeted) { providers in
+            handleDrop(providers)
         }
     }
 
@@ -214,6 +224,50 @@ struct NewDownloadView: View {
 
     // MARK: - Actions
 
+    private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
+        for provider in providers {
+            if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+                provider.loadItem(forTypeIdentifier: UTType.url.identifier) { item, _ in
+                    if let data = item as? Data, let url = URL(dataRepresentation: data, relativeTo: nil) {
+                        Task { @MainActor in
+                            urlText = url.absoluteString
+                            fetchInfo()
+                        }
+                    } else if let url = item as? URL {
+                        Task { @MainActor in
+                            urlText = url.absoluteString
+                            fetchInfo()
+                        }
+                    }
+                }
+                return true
+            }
+            if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+                provider.loadItem(forTypeIdentifier: UTType.plainText.identifier) { item, _ in
+                    if let text = item as? String {
+                        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if trimmed.hasPrefix("http://") || trimmed.hasPrefix("https://") {
+                            Task { @MainActor in
+                                urlText = trimmed
+                                fetchInfo()
+                            }
+                        }
+                    } else if let data = item as? Data, let text = String(data: data, encoding: .utf8) {
+                        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if trimmed.hasPrefix("http://") || trimmed.hasPrefix("https://") {
+                            Task { @MainActor in
+                                urlText = trimmed
+                                fetchInfo()
+                            }
+                        }
+                    }
+                }
+                return true
+            }
+        }
+        return false
+    }
+
     private func fetchInfo() {
         guard !urlText.isEmpty else { return }
         error = nil
@@ -266,25 +320,28 @@ struct FormatQuickButton: View {
             VStack(spacing: 4) {
                 Image(systemName: icon)
                     .font(.title3)
+                    .accessibilityHidden(true)
                 Text(label)
                     .font(.caption.bold())
                 if let detail {
                     Text(detail)
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
             .frame(minWidth: 70, minHeight: 50)
             .padding(8)
             .background(
-                isSelected ? AnyShapeStyle(.blue.opacity(0.15)) : AnyShapeStyle(.quaternary.opacity(0.5)),
+                isSelected ? AnyShapeStyle(.blue.opacity(0.15)) : AnyShapeStyle(.quaternary),
                 in: RoundedRectangle(cornerRadius: 8)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .strokeBorder(isSelected ? .blue : .clear, lineWidth: 1.5)
+                    .strokeBorder(isSelected ? Color.blue : Color.secondary.opacity(0.3), lineWidth: isSelected ? 1.5 : 0.5)
             )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("\(label) format\(detail.map { ", \($0)" } ?? "")")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }

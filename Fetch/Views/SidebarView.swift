@@ -16,11 +16,12 @@ struct SidebarView: View {
                     Spacer()
                     if activeCount > 0 {
                         Text("\(activeCount)")
-                            .font(.caption2.bold())
+                            .font(.caption.bold())
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(.blue.opacity(0.2), in: Capsule())
                             .foregroundStyle(.blue)
+                            .accessibilityLabel("\(activeCount) active downloads")
                     }
                 }
                 .tag(SidebarSection.queue)
@@ -52,35 +53,39 @@ struct VersionFooter: View {
                     ProgressView()
                         .controlSize(.mini)
                     Text("Checking yt-dlp...")
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             } else if let version = manager.ytdlpVersion {
                 HStack(spacing: 4) {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(.green)
-                        .font(.caption2)
+                        .font(.caption)
+                        .accessibilityHidden(true)
                     Text("yt-dlp \(version)")
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+                .accessibilityLabel("yt-dlp version \(version) installed")
 
                 if manager.updateAvailable {
                     Button("Update Available") {
                         Task { try? await manager.updateYTDLP() }
                     }
-                    .font(.caption2)
+                    .font(.caption)
                     .buttonStyle(.link)
                 }
             } else {
                 HStack(spacing: 4) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange)
-                        .font(.caption2)
+                        .font(.caption)
+                        .accessibilityHidden(true)
                     Text("yt-dlp not found")
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+                .accessibilityLabel("yt-dlp not found. Install via Homebrew.")
             }
         }
         .padding(.vertical, 4)

@@ -10,6 +10,7 @@ struct DownloadRowView: View {
                 Image(systemName: task.status.icon)
                     .foregroundStyle(iconColor)
                     .font(.callout)
+                    .accessibilityHidden(true)
 
                 Text(task.title ?? task.url)
                     .font(.callout.bold())
@@ -24,11 +25,13 @@ struct DownloadRowView: View {
             if task.status == .downloading || task.status == .postprocessing {
                 ProgressView(value: task.progress, total: 100)
                     .tint(task.status == .postprocessing ? .orange : .blue)
+                    .accessibilityLabel("Download progress")
+                    .accessibilityValue("\(Int(task.progress)) percent")
 
                 HStack {
                     if task.status == .postprocessing {
                         Text("Post-processing...")
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(.orange)
                     } else {
                         Text("\(Int(task.progress))%")
@@ -36,13 +39,13 @@ struct DownloadRowView: View {
 
                         if let speed = task.speed {
                             Text(speed)
-                                .font(.caption2.monospacedDigit())
+                                .font(.caption.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         }
 
                         if let eta = task.eta {
                             Text("ETA \(eta)")
-                                .font(.caption2.monospacedDigit())
+                                .font(.caption.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -51,7 +54,7 @@ struct DownloadRowView: View {
 
                     if let size = task.totalSize {
                         Text(size)
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -63,13 +66,14 @@ struct DownloadRowView: View {
                     .font(.caption)
                     .foregroundStyle(.red)
                     .lineLimit(2)
+                    .accessibilityLabel("Error: \(error)")
             }
 
             // Metadata row
             HStack(spacing: 8) {
                 if let extractor = task.extractor {
                     Text(extractor)
-                        .font(.caption2)
+                        .font(.caption)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(.quaternary, in: Capsule())
@@ -77,19 +81,32 @@ struct DownloadRowView: View {
 
                 if let formatDesc = task.formatDescription {
                     Text(formatDesc)
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
                 Spacer()
 
                 Text(task.url)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
         }
         .padding(.vertical, 6)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityDescription)
+    }
+
+    private var accessibilityDescription: String {
+        var parts = [task.title ?? task.url, task.status.label]
+        if task.status == .downloading {
+            parts.append("\(Int(task.progress)) percent")
+        }
+        if let error = task.error, task.status == .failed {
+            parts.append("Error: \(error)")
+        }
+        return parts.joined(separator: ", ")
     }
 
     private var iconColor: Color {
@@ -106,11 +123,12 @@ struct DownloadRowView: View {
     @ViewBuilder
     private var statusBadge: some View {
         Text(task.status.label)
-            .font(.caption2.bold())
+            .font(.caption.bold())
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
             .background(badgeColor.opacity(0.15), in: Capsule())
             .foregroundStyle(badgeColor)
+            .accessibilityLabel("Status: \(task.status.label)")
     }
 
     private var badgeColor: Color {

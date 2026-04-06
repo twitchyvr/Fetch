@@ -45,14 +45,11 @@ final class ClipboardMonitor {
         onURLDetected?(trimmed)
     }
 
-    private func looksLikeMediaURL(_ string: String) -> Bool {
+    /// Whether the URL is from a well-known media site (instant detection in clipboard banner).
+    func isKnownMediaHost(_ string: String) -> Bool {
         guard let url = URL(string: string),
-              let scheme = url.scheme,
-              ["http", "https"].contains(scheme),
               let host = url.host
-        else {
-            return false
-        }
+        else { return false }
 
         let knownHosts = [
             "youtube.com", "youtu.be", "www.youtube.com", "m.youtube.com",
@@ -69,5 +66,19 @@ final class ClipboardMonitor {
         ]
 
         return knownHosts.contains(where: { host.hasSuffix($0) })
+    }
+
+    private func looksLikeMediaURL(_ string: String) -> Bool {
+        guard let url = URL(string: string),
+              let scheme = url.scheme,
+              ["http", "https"].contains(scheme),
+              url.host != nil
+        else {
+            return false
+        }
+
+        // Accept any http/https URL — yt-dlp supports 1000+ extractors.
+        // The clipboard banner will show for all URLs; yt-dlp determines support at fetch time.
+        return true
     }
 }
