@@ -12,25 +12,26 @@ struct DownloadRowView: View {
                     AsyncImage(url: url) { image in
                         image.resizable().aspectRatio(contentMode: .fill)
                     } placeholder: {
-                        statusIconView
+                        RoundedRectangle(cornerRadius: 6).fill(.quaternary)
                     }
                     .frame(width: 64, height: 40)
                     .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .accessibilityHidden(true)
 
-                    // Overlay progress ring on thumbnail during download
                     if task.status == .downloading || task.status == .postprocessing {
                         RoundedRectangle(cornerRadius: 6)
-                            .fill(.black.opacity(0.4))
+                            .fill(.black.opacity(0.55))
                             .frame(width: 64, height: 40)
                         Text("\(Int(task.progress))%")
                             .font(.caption.bold().monospacedDigit())
                             .foregroundStyle(.white)
+                            .shadow(color: .black.opacity(0.5), radius: 1)
                     }
                 } else {
                     statusIconView
-                        .frame(width: 40, height: 40)
                 }
             }
+            .frame(width: 64, height: 40)
 
             // Content
             VStack(alignment: .leading, spacing: 4) {
