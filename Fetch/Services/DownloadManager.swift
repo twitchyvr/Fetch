@@ -10,8 +10,12 @@ final class DownloadManager {
     private(set) var updateAvailable = false
     private(set) var isCheckingVersion = false
 
-    var maxConcurrentDownloads = 3
-    var defaultOutputDirectory = "~/Downloads/Fetch"
+    var maxConcurrentDownloads: Int {
+        UserDefaults.standard.object(forKey: "maxConcurrentDownloads") as? Int ?? 3
+    }
+    var defaultOutputDirectory: String {
+        UserDefaults.standard.string(forKey: "defaultOutputDirectory") ?? "~/Downloads/Fetch"
+    }
     var modelContext: ModelContext?
 
     private let service = YTDLPService()

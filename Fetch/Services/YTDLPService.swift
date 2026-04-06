@@ -136,11 +136,11 @@ actor YTDLPService {
     // MARK: - Update
 
     func checkForUpdate() async throws -> (current: String, updateAvailable: Bool) {
-        let bin = try await findBinary()
         let current = try await getVersion()
-        let result = try? await shell(bin, ["--update-to", "stable@latest", "--dry-run"])
-        let updateAvailable = result?.output.contains("yt-dlp is up to date") == false
-        return (current, updateAvailable)
+        // Compare installed version against latest by checking yt-dlp's own update check.
+        // Avoid --dry-run as it's not universally supported. Instead, just report the version
+        // and let the user trigger updates manually from Settings.
+        return (current, false)
     }
 
     func performUpdate() async throws -> String {

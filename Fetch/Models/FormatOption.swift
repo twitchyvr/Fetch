@@ -16,8 +16,8 @@ struct FormatOption: Identifiable, Hashable, Sendable {
     let abr: Double?
     let note: String?
 
-    var isVideoOnly: Bool { acodec == "none" || acodec == nil && vcodec != nil && vcodec != "none" }
-    var isAudioOnly: Bool { vcodec == "none" || (resolution == "audio only") }
+    var isVideoOnly: Bool { (acodec == "none" || acodec == nil) && vcodec != nil && vcodec != "none" }
+    var isAudioOnly: Bool { (vcodec == "none" || vcodec == nil) && (acodec != nil && acodec != "none") || resolution == "audio only" }
     var hasVideo: Bool { vcodec != nil && vcodec != "none" }
     var hasAudio: Bool { acodec != nil && acodec != "none" }
 

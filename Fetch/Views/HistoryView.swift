@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct HistoryView: View {
+    @Environment(DownloadManager.self) private var manager
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Download.dateCreated, order: .reverse) private var downloads: [Download]
 
@@ -36,8 +37,15 @@ struct HistoryView: View {
                                 NSPasteboard.general.setString(download.url, forType: .string)
                             }
                             Button("Download Again") {
-                                NSPasteboard.general.clearContents()
-                                NSPasteboard.general.setString(download.url, forType: .string)
+                                manager.enqueue(
+                                    url: download.url,
+                                    title: download.title,
+                                    formatId: download.formatId,
+                                    formatDescription: download.formatDescription,
+                                    thumbnailURL: download.thumbnailURL,
+                                    extractor: download.extractor,
+                                    duration: download.duration
+                                )
                             }
                             Divider()
                             Button("Delete", role: .destructive) {
