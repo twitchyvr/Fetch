@@ -19,6 +19,7 @@
 		56551A7C863E9ADC6554DA3D /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9A73C0BB961790EBB0D9B3 /* DesignSystem.swift */; };
 		5A406E85567E73307125E9D7 /* AdvancedOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F344B11A58209EF5146E00C /* AdvancedOptionsView.swift */; };
 		5F89860AE5866DDA04D7D767 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE17EB2ADCBD3436D999E2DC /* HistoryView.swift */; };
+		68DACE1689807265899B90B1 /* SpotlightService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7279D11BC6E50D9BA526614D /* SpotlightService.swift */; };
 		77A54975BD430DB4BB3E14AA /* FetchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4BE44D5F65BC39A95ED47F /* FetchTests.swift */; };
 		782C0E06D94E3E88CB598E15 /* Preset.swift in Sources */ = {isa = PBXBuildFile; fileRef = D793FA63DCCCCC5C1490FB6F /* Preset.swift */; };
 		7AA6B1CEF42D4B149257F77C /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC7AD15C637CADA0824F35E /* DownloadManager.swift */; };
@@ -31,6 +32,7 @@
 		B51F6B0FF426EDCB275EDA9B /* PresetEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F66D521F27304FC866DF21 /* PresetEditorView.swift */; };
 		BF4978831B551D7016E5DF7B /* DownloadQueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2204AA8F92B296FE42E112 /* DownloadQueueView.swift */; };
 		CC20404951AB80477EA91C7A /* NewDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4E5FA37B9156D3146D1561 /* NewDownloadView.swift */; };
+		D4D08DE0036DAE52C8F1242E /* AppIntentsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C946C5589F74BF7E12EE6610 /* AppIntentsProvider.swift */; };
 		D5B9AFEE091C6D5F3389FF81 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC91BF95A053821F8DB23D3F /* StatsView.swift */; };
 		D9A8B648A1EB467679FA8F04 /* TranscriptOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECACC22DF7BE18756DACF65F /* TranscriptOptionsView.swift */; };
 		E95B726F299DDC86547F81B4 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2015C2DFB9042CD95C78E28 /* NotificationService.swift */; };
@@ -69,6 +71,7 @@
 		57781422AA02941E7974B42F /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		603D7BFBF85B8544C708F910 /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardMonitor.swift; sourceTree = "<group>"; };
 		6C2623AAB3EB28232466FDDE /* FormatPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatPickerView.swift; sourceTree = "<group>"; };
+		7279D11BC6E50D9BA526614D /* SpotlightService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightService.swift; sourceTree = "<group>"; };
 		76D903C6575F2CB42F5F65E8 /* URLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLParser.swift; sourceTree = "<group>"; };
 		7827C9F6121D8E7248BFB6F0 /* TipBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipBanner.swift; sourceTree = "<group>"; };
 		7B3F461C4CA34D76C3800B75 /* FfmpegService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FfmpegService.swift; sourceTree = "<group>"; };
@@ -81,6 +84,7 @@
 		B2015C2DFB9042CD95C78E28 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		BE17EB2ADCBD3436D999E2DC /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		C50FE8D8EB834FCF61AD11C6 /* YTDLPService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTDLPService.swift; sourceTree = "<group>"; };
+		C946C5589F74BF7E12EE6610 /* AppIntentsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIntentsProvider.swift; sourceTree = "<group>"; };
 		CB4BE44D5F65BC39A95ED47F /* FetchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchTests.swift; sourceTree = "<group>"; };
 		D793FA63DCCCCC5C1490FB6F /* Preset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preset.swift; sourceTree = "<group>"; };
 		DC349A2094125985259419FA /* FetchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FetchTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -102,10 +106,12 @@
 		512DE69EDDFDF55F8F8CAC81 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				C946C5589F74BF7E12EE6610 /* AppIntentsProvider.swift */,
 				603D7BFBF85B8544C708F910 /* ClipboardMonitor.swift */,
 				2CC7AD15C637CADA0824F35E /* DownloadManager.swift */,
 				7B3F461C4CA34D76C3800B75 /* FfmpegService.swift */,
 				B2015C2DFB9042CD95C78E28 /* NotificationService.swift */,
+				7279D11BC6E50D9BA526614D /* SpotlightService.swift */,
 				76D903C6575F2CB42F5F65E8 /* URLParser.swift */,
 				C50FE8D8EB834FCF61AD11C6 /* YTDLPService.swift */,
 			);
@@ -276,6 +282,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5A406E85567E73307125E9D7 /* AdvancedOptionsView.swift in Sources */,
+				D4D08DE0036DAE52C8F1242E /* AppIntentsProvider.swift in Sources */,
 				014950E33F4A647CEBFF455E /* AuroraView.swift in Sources */,
 				91A342B625E57B799CACE111 /* ClipboardMonitor.swift in Sources */,
 				430DE1CBFBCAFB4760DA4655 /* ContentView.swift in Sources */,
@@ -299,6 +306,7 @@
 				B51F6B0FF426EDCB275EDA9B /* PresetEditorView.swift in Sources */,
 				EED7DA11CD8FA1102C2DD1B3 /* SettingsView.swift in Sources */,
 				469A19EBEE2928AB5C294D4F /* SidebarView.swift in Sources */,
+				68DACE1689807265899B90B1 /* SpotlightService.swift in Sources */,
 				D5B9AFEE091C6D5F3389FF81 /* StatsView.swift in Sources */,
 				2165D1FD7509CD7D0B03D34B /* TipBanner.swift in Sources */,
 				D9A8B648A1EB467679FA8F04 /* TranscriptOptionsView.swift in Sources */,
