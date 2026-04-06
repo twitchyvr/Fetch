@@ -106,30 +106,37 @@ struct NewDownloadView: View {
                 .buttonStyle(.bordered)
                 .controlSize(.small)
         }
-        .padding()
-        .background(.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
+        .padding(Design.Spacing.md)
+        .background(.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: Design.Radius.standard))
     }
 
     // MARK: - Media Info
 
     private func mediaInfoSection(_ info: MediaInfo) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Title and metadata
-            HStack(alignment: .top, spacing: 16) {
+        VStack(alignment: .leading, spacing: Design.Spacing.lg) {
+            // Title and metadata — Apple card style
+            HStack(alignment: .top, spacing: Design.Spacing.lg) {
                 if let thumb = info.thumbnailURL {
                     AsyncImage(url: thumb) { image in
                         image.resizable().aspectRatio(contentMode: .fill)
                     } placeholder: {
-                        Rectangle().fill(.quaternary)
+                        RoundedRectangle(cornerRadius: Design.Radius.standard)
+                            .fill(.quaternary)
+                            .overlay {
+                                Image(systemName: "photo")
+                                    .font(.title2)
+                                    .foregroundStyle(.tertiary)
+                            }
                     }
-                    .frame(width: 160, height: 90)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .frame(width: 180, height: 100)
+                    .clipShape(RoundedRectangle(cornerRadius: Design.Radius.standard))
                 }
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Design.Spacing.xs) {
                     Text(info.title)
-                        .font(.title3.bold())
+                        .font(.title3.weight(.semibold))
                         .lineLimit(2)
+                        .tracking(-0.3)
 
                     if let uploader = info.uploader {
                         Text(uploader)
@@ -137,7 +144,7 @@ struct NewDownloadView: View {
                             .foregroundStyle(.secondary)
                     }
 
-                    HStack(spacing: 12) {
+                    HStack(spacing: Design.Spacing.md) {
                         if let duration = info.formattedDuration {
                             Label(duration, systemImage: "clock")
                         }
@@ -209,13 +216,14 @@ struct NewDownloadView: View {
                 Spacer()
                 Button(action: startDownload) {
                     Label("Download", systemImage: "arrow.down.circle.fill")
-                        .font(.headline)
+                        .font(.body.weight(.semibold))
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
                 .keyboardShortcut(.return)
             }
         }
+        .cardStyle()
         .sheet(isPresented: $showFormatPicker) {
             FormatPickerView(
                 mediaInfo: info,
