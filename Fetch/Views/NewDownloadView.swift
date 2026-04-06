@@ -377,6 +377,39 @@ struct NewDownloadView: View {
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Design.Radius.standard))
             }
 
+            // AI Content Insights (NaturalLanguage framework)
+            let insights = TextAnalysisService.generateInsights(
+                title: info.title,
+                description: info.description,
+                uploader: info.uploader
+            )
+            if !insights.isEmpty {
+                VStack(alignment: .leading, spacing: Design.Spacing.sm) {
+                    Label("Content Insights", systemImage: "cpu")
+                        .font(.caption.bold())
+                        .foregroundStyle(Color.accentColor)
+
+                    ForEach(insights) { insight in
+                        HStack(alignment: .top, spacing: Design.Spacing.sm) {
+                            Image(systemName: insight.icon)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .frame(width: 16)
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(insight.label)
+                                    .font(.caption.bold())
+                                Text(insight.value)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(3)
+                            }
+                        }
+                    }
+                }
+                .padding(Design.Spacing.md)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Design.Radius.standard))
+            }
+
             // Download button
             HStack {
                 Spacer()

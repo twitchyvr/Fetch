@@ -26,6 +26,7 @@
 		7F508C340D4B58672F164D85 /* PlaylistPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C200474128D92F86539CE26 /* PlaylistPickerView.swift */; };
 		8A23B88E7E891442E1235D64 /* YTDLPService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50FE8D8EB834FCF61AD11C6 /* YTDLPService.swift */; };
 		91A342B625E57B799CACE111 /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603D7BFBF85B8544C708F910 /* ClipboardMonitor.swift */; };
+		984D4F5C0CD0FC99EB0FF13A /* TextAnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E80828FF4F644255940C23 /* TextAnalysisService.swift */; };
 		99CE97D28A4692EBA98EAD8F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 176D1E2BC292A264EFB80D97 /* Assets.xcassets */; };
 		AD1529C23B56930C1344ECF8 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A794F31E255F800586B666AB /* OnboardingView.swift */; };
 		B0086170AF7BB191186F68C2 /* FfmpegLabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C6D934497A7A63E4E6B627 /* FfmpegLabView.swift */; };
@@ -77,6 +78,7 @@
 		7B3F461C4CA34D76C3800B75 /* FfmpegService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FfmpegService.swift; sourceTree = "<group>"; };
 		7FDB1C316F100F78CCBAD1B1 /* Download.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Download.swift; sourceTree = "<group>"; };
 		810C9DED2B14FB17EFA4529A /* DownloadRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadRowView.swift; sourceTree = "<group>"; };
+		83E80828FF4F644255940C23 /* TextAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextAnalysisService.swift; sourceTree = "<group>"; };
 		8E96BAC29AB9C3CE3DAC8C30 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		A4C6D934497A7A63E4E6B627 /* FfmpegLabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FfmpegLabView.swift; sourceTree = "<group>"; };
 		A5F8777C9ABE883DC2DE1A33 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 				7B3F461C4CA34D76C3800B75 /* FfmpegService.swift */,
 				B2015C2DFB9042CD95C78E28 /* NotificationService.swift */,
 				7279D11BC6E50D9BA526614D /* SpotlightService.swift */,
+				83E80828FF4F644255940C23 /* TextAnalysisService.swift */,
 				76D903C6575F2CB42F5F65E8 /* URLParser.swift */,
 				C50FE8D8EB834FCF61AD11C6 /* YTDLPService.swift */,
 			);
@@ -308,6 +311,7 @@
 				469A19EBEE2928AB5C294D4F /* SidebarView.swift in Sources */,
 				68DACE1689807265899B90B1 /* SpotlightService.swift in Sources */,
 				D5B9AFEE091C6D5F3389FF81 /* StatsView.swift in Sources */,
+				984D4F5C0CD0FC99EB0FF13A /* TextAnalysisService.swift in Sources */,
 				2165D1FD7509CD7D0B03D34B /* TipBanner.swift in Sources */,
 				D9A8B648A1EB467679FA8F04 /* TranscriptOptionsView.swift in Sources */,
 				3EB84EE80BE3BC1E29AA4922 /* URLParser.swift in Sources */,
