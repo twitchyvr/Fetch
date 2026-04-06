@@ -105,7 +105,7 @@ struct DownloadRowView: View {
                     Spacer()
                     Text(task.url)
                         .font(.caption)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .frame(maxWidth: 200)
