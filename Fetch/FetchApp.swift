@@ -4,14 +4,26 @@ import SwiftData
 @main
 struct FetchApp: App {
     @State private var downloadManager = DownloadManager()
+    @Environment(\.openWindow) private var openWindow
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(downloadManager)
+                .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+                    downloadManager.cancelAll()
+                }
         }
         .modelContainer(for: [Download.self, Preset.self])
         .defaultSize(width: 900, height: 600)
+        .commands {
+            CommandGroup(replacing: .newItem) {
+                Button("New Download") {
+                    NSApp.activate()
+                }
+                .keyboardShortcut("n")
+            }
+        }
 
         Settings {
             SettingsView()
@@ -22,6 +34,7 @@ struct FetchApp: App {
             MenuBarView()
                 .environment(downloadManager)
         }
+        .menuBarExtraStyle(.window)
     }
 }
 
@@ -46,7 +59,7 @@ struct MenuBarView: View {
             }
             Divider()
             Button("Open Fetch") {
-                NSApp.activate(ignoringOtherApps: true)
+                NSApp.activate()
             }
             Button("Quit") {
                 NSApp.terminate(nil)

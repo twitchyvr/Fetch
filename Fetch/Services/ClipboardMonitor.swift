@@ -11,9 +11,12 @@ final class ClipboardMonitor {
     var onURLDetected: ((String) -> Void)?
 
     func start() {
+        stop() // Invalidate any existing timer to prevent duplicates
         lastChangeCount = NSPasteboard.general.changeCount
         timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+            // ClipboardMonitor is @MainActor, Timer fires on RunLoop.main,
+            // so check() is already on the main actor — no Task wrapper needed.
+            MainActor.assumeIsolated {
                 self?.check()
             }
         }

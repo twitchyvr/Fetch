@@ -176,38 +176,63 @@ actor YTDLPService {
             process.executableURL = URL(fileURLWithPath: path)
             process.arguments = arguments
 
-            let stdout = Pipe()
-            let stderr = Pipe()
-            process.standardOutput = stdout
-            process.standardError = stderr
+            let stdoutPipe = Pipe()
+            let stderrPipe = Pipe()
+            process.standardOutput = stdoutPipe
+            process.standardError = stderrPipe
+
+            // Accumulate pipe data asynchronously to avoid blocking the thread pool.
+            let outBuffer = LockedValue(Data())
+            let errBuffer = LockedValue(Data())
+            let didResume = LockedValue(false)
+
+            stdoutPipe.fileHandleForReading.readabilityHandler = { handle in
+                let data = handle.availableData
+                if !data.isEmpty {
+                    outBuffer.mutate { $0.append(data) }
+                }
+            }
+
+            stderrPipe.fileHandleForReading.readabilityHandler = { handle in
+                let data = handle.availableData
+                if !data.isEmpty {
+                    errBuffer.mutate { $0.append(data) }
+                }
+            }
+
+            process.terminationHandler = { proc in
+                // Drain any remaining data
+                stdoutPipe.fileHandleForReading.readabilityHandler = nil
+                stderrPipe.fileHandleForReading.readabilityHandler = nil
+                let remainingOut = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
+                let remainingErr = stderrPipe.fileHandleForReading.readDataToEndOfFile()
+                if !remainingOut.isEmpty { outBuffer.mutate { $0.append(remainingOut) } }
+                if !remainingErr.isEmpty { errBuffer.mutate { $0.append(remainingErr) } }
+
+                let outStr = String(data: outBuffer.get(), encoding: .utf8) ?? ""
+                let errStr = String(data: errBuffer.get(), encoding: .utf8) ?? ""
+
+                guard !didResume.get() else { return }
+                didResume.set(true)
+
+                if proc.terminationStatus != 0 {
+                    continuation.resume(throwing: YTDLPError.processError(
+                        code: proc.terminationStatus,
+                        message: errStr.isEmpty ? outStr : errStr
+                    ))
+                } else {
+                    continuation.resume(returning: ShellResult(
+                        output: outStr, error: errStr, exitCode: proc.terminationStatus
+                    ))
+                }
+            }
 
             do {
                 try process.run()
             } catch {
+                guard !didResume.get() else { return }
+                didResume.set(true)
                 continuation.resume(throwing: error)
-                return
-            }
-
-            // Read pipe data BEFORE waitUntilExit to prevent deadlock.
-            // If the child writes >64KB, the pipe buffer fills and the child
-            // blocks on write. Reading first drains the buffer; readDataToEndOfFile
-            // returns at EOF (child exit), so this implicitly waits.
-            let outData = stdout.fileHandleForReading.readDataToEndOfFile()
-            let errData = stderr.fileHandleForReading.readDataToEndOfFile()
-            process.waitUntilExit()
-
-            let outStr = String(data: outData, encoding: .utf8) ?? ""
-            let errStr = String(data: errData, encoding: .utf8) ?? ""
-
-            if process.terminationStatus != 0 {
-                continuation.resume(throwing: YTDLPError.processError(
-                    code: process.terminationStatus,
-                    message: errStr.isEmpty ? outStr : errStr
-                ))
-            } else {
-                continuation.resume(returning: ShellResult(
-                    output: outStr, error: errStr, exitCode: process.terminationStatus
-                ))
             }
         }
     }
@@ -371,6 +396,12 @@ final class LockedValue<T: Sendable>: @unchecked Sendable {
     func set(_ newValue: T) {
         lock.lock()
         value = newValue
+        lock.unlock()
+    }
+
+    func mutate(_ transform: (inout T) -> Void) {
+        lock.lock()
+        transform(&value)
         lock.unlock()
     }
 }
