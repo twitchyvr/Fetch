@@ -49,8 +49,10 @@ struct OnboardingView: View {
                             .frame(width: 7, height: 7)
                             .scaleEffect(index == currentStep ? 1.2 : 1.0)
                             .animation(.spring(duration: 0.25), value: currentStep)
+                            .accessibilityHidden(true)
                     }
                 }
+                .accessibilityLabel("Step \(currentStep + 1) of \(steps.count)")
 
                 Spacer()
 

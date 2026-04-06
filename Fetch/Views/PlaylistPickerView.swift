@@ -129,6 +129,7 @@ struct PlaylistPickerView: View {
                             }
                             .buttonStyle(.plain)
                             .foregroundStyle(downloadMode == mode ? Color.accentColor : .primary)
+                            .accessibilityAddTraits(downloadMode == mode ? .isSelected : [])
                         }
                     }
 
