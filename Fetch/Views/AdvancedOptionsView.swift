@@ -291,7 +291,7 @@ struct AdvancedOptionsView: View {
         args = buildArgs()
     }
 
-    func buildArgs() -> [String] {
+    private func buildArgs() -> [String] {
         var result: [String] = []
 
         // Subtitles

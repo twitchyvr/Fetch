@@ -206,6 +206,7 @@ struct FfmpegLabView: View {
                             .foregroundStyle(activeTab == tab ? Color.accentColor : .secondary)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityAddTraits(activeTab == tab ? .isSelected : [])
                 }
             }
             .padding(.horizontal)

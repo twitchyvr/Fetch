@@ -185,7 +185,6 @@ struct PulsingGlow: View {
 struct GradientText: View {
     let text: String
     let font: Font
-    @State private var gradientOffset: CGFloat = 0
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 20.0)) { timeline in
