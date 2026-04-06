@@ -76,4 +76,19 @@ final class Preset {
             Preset(name: "Podcast", formatSelection: "bestaudio", preferredQuality: "audio", extraArguments: "--extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata"),
         ]
     }
+
+    static var aiBuiltIn: [Preset] {
+        [
+            Preset(name: "AI: Speech-to-Text (Whisper)", formatSelection: "bestaudio", preferredQuality: "audio",
+                   extraArguments: "--extract-audio --audio-format wav --postprocessor-args \"ffmpeg:-ar 16000 -ac 1\""),
+            Preset(name: "AI: Transcript Only", formatSelection: "bestaudio", preferredQuality: "audio",
+                   extraArguments: "--write-auto-subs --sub-format vtt --skip-download --sub-langs en.*,en"),
+            Preset(name: "AI: Audio + Transcript", formatSelection: "bestaudio", preferredQuality: "audio",
+                   extraArguments: "--extract-audio --audio-format mp3 --audio-quality 0 --write-auto-subs --sub-format vtt --sub-langs en.*,en"),
+            Preset(name: "AI: Vision Frames (1fps)", formatSelection: "bestvideo[height<=1080]", preferredQuality: "1080p",
+                   extraArguments: "--postprocessor-args \"ffmpeg:-vf fps=1\" --write-thumbnail"),
+            Preset(name: "AI: Music Lossless (FLAC)", formatSelection: "bestaudio", preferredQuality: "audio",
+                   extraArguments: "--extract-audio --audio-format flac"),
+        ]
+    }
 }
