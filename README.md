@@ -12,13 +12,13 @@ Fetch wraps yt-dlp with a polished native interface — paste a URL, pick a form
 
 ## Screenshots
 
-| New Download | Media Info + AI Suggestions | Stats Dashboard |
+| Media Info + Transcripts | FFmpeg Lab | Playlist Picker |
 |:---:|:---:|:---:|
-| ![New Download](screenshots/new-download-view.png) | ![Media Info](screenshots/media-info-view.png) | ![Stats](screenshots/stats-view.png) |
+| ![Media Info](screenshots/media-info-view.png) | ![FFmpeg Lab](screenshots/ffmpeg-lab-view.png) | ![Playlist](screenshots/playlist-picker-view.png) |
 
-| Download Queue | History | Presets | Settings |
-|:---:|:---:|:---:|:---:|
-| ![Queue](screenshots/queue-view.png) | ![History](screenshots/history-view.png) | ![Presets](screenshots/presets-view.png) | ![Settings](screenshots/settings-view.png) |
+| Library | Stats | Presets (11 built-in) |
+|:---:|:---:|:---:|
+| ![Library](screenshots/library-view.png) | ![Stats](screenshots/stats-view.png) | ![Presets](screenshots/presets-view.png) |
 
 ## Features
 
