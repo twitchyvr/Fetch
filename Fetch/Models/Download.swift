@@ -48,14 +48,7 @@ final class Download {
     }
 
     var formattedDuration: String? {
-        guard let duration else { return nil }
-        let hours = Int(duration) / 3600
-        let minutes = (Int(duration) % 3600) / 60
-        let seconds = Int(duration) % 60
-        if hours > 0 {
-            return String(format: "%d:%02d:%02d", hours, minutes, seconds)
-        }
-        return String(format: "%d:%02d", minutes, seconds)
+        duration.flatMap { DurationFormatter.format($0) }
     }
 
     var formattedFileSize: String? {
