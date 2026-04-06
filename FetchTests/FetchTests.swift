@@ -258,3 +258,63 @@ struct URLParserTests {
         #expect(urls[0] == "https://youtu.be/f4iQVe-P_q8")
     }
 }
+
+// MARK: - Text Analysis Tests
+
+@Suite("Text Analysis")
+struct TextAnalysisTests {
+
+    @Test("Detects English language")
+    func detectEnglish() {
+        let lang = TextAnalysisService.detectLanguage("This is a video about programming in Swift")
+        #expect(lang != nil)
+        #expect(lang!.contains("English"))
+    }
+
+    @Test("Extracts keywords from descriptive text")
+    func extractKeywords() {
+        let text = "Apple released a new MacBook Pro with the M4 chip. The company also announced updates to Xcode and Swift programming language."
+        let keywords = TextAnalysisService.extractKeywords(from: text, limit: 5)
+        #expect(!keywords.isEmpty)
+    }
+
+    @Test("Analyzes positive sentiment")
+    func positiveSentiment() {
+        let result = TextAnalysisService.analyzeSentiment("This is absolutely amazing and wonderful! I love it so much!")
+        #expect(result.label == "Positive" || result.label == "Neutral")
+    }
+
+    @Test("Analyzes negative sentiment")
+    func negativeSentiment() {
+        let result = TextAnalysisService.analyzeSentiment("This is terrible and awful. I hate everything about it. Worst experience ever.")
+        #expect(result.label == "Negative" || result.label == "Neutral")
+    }
+
+    @Test("Summarizes text to fewer sentences")
+    func summarize() {
+        let text = "Swift is a powerful programming language. It was created by Apple for iOS and macOS development. Swift is fast, safe, and expressive. Many developers prefer Swift over Objective-C. The language continues to evolve with new features each year."
+        let summary = TextAnalysisService.summarize(text, sentenceCount: 2)
+        #expect(!summary.isEmpty)
+        #expect(summary.count < text.count)
+    }
+
+    @Test("Generates insights for video content")
+    func generateInsights() {
+        let insights = TextAnalysisService.generateInsights(
+            title: "Learn SwiftUI in 2024",
+            description: "A comprehensive tutorial on building macOS and iOS applications with SwiftUI. Covers views, modifiers, state management, and advanced techniques. Perfect for beginners and intermediate developers looking to master Apple's modern UI framework.",
+            uploader: "Swift Tutorial Channel"
+        )
+        #expect(!insights.isEmpty)
+        // Should have at least language detection
+        #expect(insights.contains { $0.label == "Language" })
+    }
+
+    @Test("Returns empty insights for nil description")
+    func emptyInsights() {
+        let insights = TextAnalysisService.generateInsights(title: "Short", description: nil, uploader: nil)
+        // Should still detect language from title
+        let hasLang = insights.contains { $0.label == "Language" }
+        #expect(hasLang || insights.isEmpty) // Either detects or returns empty — both valid
+    }
+}
