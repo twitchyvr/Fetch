@@ -17,7 +17,7 @@ struct FormatOption: Identifiable, Hashable, Sendable {
     let note: String?
 
     var isVideoOnly: Bool { (acodec == "none" || acodec == nil) && vcodec != nil && vcodec != "none" }
-    var isAudioOnly: Bool { (vcodec == "none" || vcodec == nil) && (acodec != nil && acodec != "none") || resolution == "audio only" }
+    var isAudioOnly: Bool { ((vcodec == "none" || vcodec == nil) && acodec != nil && acodec != "none") || resolution == "audio only" }
     var hasVideo: Bool { vcodec != nil && vcodec != "none" }
     var hasAudio: Bool { acodec != nil && acodec != "none" }
 
@@ -91,14 +91,7 @@ struct MediaInfo: Sendable {
     let likeCount: Int?
 
     var formattedDuration: String? {
-        guard let duration else { return nil }
-        let hours = Int(duration) / 3600
-        let minutes = (Int(duration) % 3600) / 60
-        let seconds = Int(duration) % 60
-        if hours > 0 {
-            return String(format: "%d:%02d:%02d", hours, minutes, seconds)
-        }
-        return String(format: "%d:%02d", minutes, seconds)
+        duration.flatMap { DurationFormatter.format($0) }
     }
 
     var videoFormats: [FormatOption] {
@@ -130,5 +123,18 @@ struct MediaInfo: Sendable {
 
         let rawFormats = (json["formats"] as? [[String: Any]]) ?? []
         self.formats = rawFormats.map { FormatOption(json: $0) }
+    }
+}
+
+// MARK: - Shared Utilities
+
+enum DurationFormatter {
+    static func format(_ seconds: TimeInterval) -> String {
+        let total = Int(seconds)
+        let h = total / 3600
+        let m = (total % 3600) / 60
+        let s = total % 60
+        return h > 0 ? String(format: "%d:%02d:%02d", h, m, s)
+                      : String(format: "%d:%02d", m, s)
     }
 }
