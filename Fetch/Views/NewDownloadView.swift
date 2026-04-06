@@ -18,6 +18,9 @@ struct NewDownloadView: View {
     @State private var showFormatPicker = false
     @State private var isDropTargeted = false
     @State private var fetchTask: Task<Void, Never>?
+    @State private var batchMode = false
+    @State private var batchURLs: [String] = []
+    @State private var batchSelected: Set<String> = []
 
     // Advanced options
     @State private var downloadSubtitles = false
@@ -59,34 +62,137 @@ struct NewDownloadView: View {
 
     private var urlInputSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("URL")
-                .font(.headline)
+            HStack {
+                Text("URL")
+                    .font(.headline)
+                Spacer()
+                Toggle("Batch Mode", isOn: $batchMode)
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+                    .help("Paste multiple URLs — one per line, JSON array, or drop a text file")
+            }
 
-            HStack(spacing: 8) {
-                TextField("Paste or drop a video/audio URL...", text: $urlText)
-                    .textFieldStyle(.roundedBorder)
-                    .onSubmit { fetchInfo() }
-
-                Button("Paste") {
-                    if let content = NSPasteboard.general.string(forType: .string) {
-                        urlText = content.trimmingCharacters(in: .whitespacesAndNewlines)
-                        fetchInfo()
-                    }
-                }
-                .keyboardShortcut("v", modifiers: [.command, .shift])
-
-                Button("Fetch") { fetchInfo() }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(urlText.isEmpty || isLoading)
+            if batchMode {
+                batchInputView
+            } else {
+                singleURLInput
             }
         }
         .padding(isDropTargeted ? 4 : 0)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .strokeBorder(.blue, lineWidth: isDropTargeted ? 2 : 0)
+                .strokeBorder(Color.accentColor, lineWidth: isDropTargeted ? 2 : 0)
         )
-        .onDrop(of: [.url, .plainText], isTargeted: $isDropTargeted) { providers in
+        .onDrop(of: [.url, .plainText, .fileURL], isTargeted: $isDropTargeted) { providers in
             handleDrop(providers)
+        }
+    }
+
+    private var singleURLInput: some View {
+        HStack(spacing: 8) {
+            TextField("Paste or drop a video/audio URL...", text: $urlText)
+                .textFieldStyle(.roundedBorder)
+                .onSubmit { fetchInfo() }
+
+            Button("Paste") {
+                if let content = NSPasteboard.general.string(forType: .string) {
+                    let urls = URLParser.extractURLs(from: content)
+                    if urls.count > 1 {
+                        batchMode = true
+                        batchURLs = urls
+                        batchSelected = Set(urls)
+                    } else {
+                        urlText = content.trimmingCharacters(in: .whitespacesAndNewlines)
+                        fetchInfo()
+                    }
+                }
+            }
+            .keyboardShortcut("v", modifiers: [.command, .shift])
+
+            Button("Fetch") { fetchInfo() }
+                .buttonStyle(.borderedProminent)
+                .disabled(urlText.isEmpty || isLoading)
+        }
+    }
+
+    private var batchInputView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            TextEditor(text: $urlText)
+                .font(.body.monospaced())
+                .frame(minHeight: 80, maxHeight: 150)
+                .border(Color.secondary.opacity(0.2))
+                .overlay(alignment: .topLeading) {
+                    if urlText.isEmpty {
+                        Text("Paste URLs — one per line, JSON array, or mixed text...")
+                            .font(.body.monospaced())
+                            .foregroundStyle(.tertiary)
+                            .padding(6)
+                            .allowsHitTesting(false)
+                    }
+                }
+
+            HStack {
+                Button("Parse URLs") {
+                    let parsed = URLParser.extractURLs(from: urlText)
+                    batchURLs = parsed
+                    batchSelected = Set(parsed)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(urlText.isEmpty)
+
+                Button("Paste from Clipboard") {
+                    if let content = NSPasteboard.general.string(forType: .string) {
+                        urlText = content
+                        let parsed = URLParser.extractURLs(from: content)
+                        batchURLs = parsed
+                        batchSelected = Set(parsed)
+                    }
+                }
+
+                Spacer()
+
+                if !batchURLs.isEmpty {
+                    Text("\(batchURLs.count) URLs found, \(batchSelected.count) selected")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            if !batchURLs.isEmpty {
+                VStack(spacing: 0) {
+                    HStack {
+                        Button("Select All") { batchSelected = Set(batchURLs) }
+                        Button("Deselect All") { batchSelected.removeAll() }
+                        Spacer()
+                        Button("Download \(batchSelected.count) URLs") {
+                            startBatchDownload()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(batchSelected.isEmpty)
+                    }
+                    .font(.caption)
+                    .padding(.bottom, 4)
+
+                    List {
+                        ForEach(batchURLs, id: \.self) { url in
+                            Toggle(isOn: Binding(
+                                get: { batchSelected.contains(url) },
+                                set: { isOn in
+                                    if isOn { batchSelected.insert(url) }
+                                    else { batchSelected.remove(url) }
+                                }
+                            )) {
+                                Text(url)
+                                    .font(.caption.monospaced())
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
+                            }
+                        }
+                    }
+                    .listStyle(.bordered)
+                    .frame(maxHeight: 200)
+                }
+            }
         }
     }
 
@@ -341,23 +447,39 @@ struct NewDownloadView: View {
                 }
                 return true
             }
+            // File drop support (.txt, .json, .csv)
+            if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+                provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier) { item, _ in
+                    guard let data = item as? Data,
+                          let fileURL = URL(dataRepresentation: data, relativeTo: nil) else { return }
+                    let urls = URLParser.extractURLs(fromFileAt: fileURL.path)
+                    if !urls.isEmpty {
+                        Task { @MainActor in
+                            batchMode = true
+                            batchURLs = urls
+                            batchSelected = Set(urls)
+                        }
+                    }
+                }
+                return true
+            }
             if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
                 provider.loadItem(forTypeIdentifier: UTType.plainText.identifier) { item, _ in
-                    if let text = item as? String {
-                        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                        if trimmed.hasPrefix("http://") || trimmed.hasPrefix("https://") {
-                            Task { @MainActor in
-                                urlText = trimmed
-                                fetchInfo()
-                            }
+                    let text: String? = if let s = item as? String { s }
+                        else if let d = item as? Data { String(data: d, encoding: .utf8) }
+                        else { nil }
+                    guard let text else { return }
+                    let urls = URLParser.extractURLs(from: text)
+                    if urls.count > 1 {
+                        Task { @MainActor in
+                            batchMode = true
+                            batchURLs = urls
+                            batchSelected = Set(urls)
                         }
-                    } else if let data = item as? Data, let text = String(data: data, encoding: .utf8) {
-                        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                        if trimmed.hasPrefix("http://") || trimmed.hasPrefix("https://") {
-                            Task { @MainActor in
-                                urlText = trimmed
-                                fetchInfo()
-                            }
+                    } else if let single = urls.first {
+                        Task { @MainActor in
+                            urlText = single
+                            fetchInfo()
                         }
                     }
                 }
@@ -425,6 +547,37 @@ struct NewDownloadView: View {
         urlText = ""
         self.mediaInfo = nil
         selectedFormat = nil
+    }
+
+    private func startBatchDownload() {
+        for url in batchURLs where batchSelected.contains(url) {
+            manager.enqueue(
+                url: url,
+                title: url,
+                formatId: nil,
+                additionalArgs: buildAdvancedArgs()
+            )
+        }
+        // Reset
+        urlText = ""
+        batchURLs = []
+        batchSelected = []
+        batchMode = false
+    }
+
+    private func buildAdvancedArgs() -> [String] {
+        var args: [String] = []
+        if downloadSubtitles {
+            args += autoGeneratedSubs ? ["--write-auto-subs"] : ["--write-subs"]
+            if embedSubtitles { args += ["--embed-subs"] }
+            args += ["--sub-langs", "en.*,en"]
+        }
+        if embedThumbnail { args += ["--embed-thumbnail"] }
+        if embedMetadata { args += ["--embed-metadata"] }
+        if sponsorBlock { args += ["--sponsorblock-remove", "all"] }
+        if !speedLimit.isEmpty { args += ["--limit-rate", speedLimit] }
+        if !cookiesBrowser.isEmpty { args += ["--cookies-from-browser", cookiesBrowser] }
+        return args
     }
 
     // MARK: - Contextual Suggestions
