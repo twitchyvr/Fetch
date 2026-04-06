@@ -116,6 +116,68 @@ actor YTDLPService {
         )
     }
 
+    // MARK: - Search
+
+    /// Search YouTube (or other supported sites) via yt-dlp's ytsearch.
+    /// Returns results as a PlaylistInfo for reuse in the playlist picker.
+    func search(query: String, maxResults: Int = 20) async throws -> PlaylistInfo {
+        let bin = try await findBinary()
+        let searchTerm = "ytsearch\(maxResults):\(query)"
+        let result = try await shell(bin, [
+            "--flat-playlist",
+            "--dump-json",
+            "--no-download",
+            "--no-warnings",
+            searchTerm,
+        ])
+
+        let lines = result.output.components(separatedBy: .newlines).filter { !$0.isEmpty }
+        var entries: [PlaylistEntry] = []
+
+        for (index, line) in lines.enumerated() {
+            guard let data = line.data(using: .utf8),
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+            else { continue }
+
+            let videoURL = json["url"] as? String ?? json["webpage_url"] as? String ?? ""
+            let entry = PlaylistEntry(
+                url: videoURL.hasPrefix("http") ? videoURL : "https://www.youtube.com/watch?v=\(videoURL)",
+                title: json["title"] as? String ?? "Result \(index + 1)",
+                duration: json["duration"] as? TimeInterval,
+                thumbnailURL: (json["thumbnail"] as? String).flatMap { URL(string: $0) },
+                index: index + 1
+            )
+            if !entry.url.isEmpty {
+                entries.append(entry)
+            }
+        }
+
+        return PlaylistInfo(
+            title: "Search: \(query)",
+            id: nil,
+            uploader: nil,
+            entries: entries,
+            url: searchTerm
+        )
+    }
+
+    /// Detect if a URL is a YouTube search results page.
+    static func isSearchURL(_ url: String) -> String? {
+        guard let urlObj = URL(string: url),
+              let host = urlObj.host,
+              (host.contains("youtube.com") || host.contains("youtu.be")),
+              url.contains("search_query=")
+        else { return nil }
+
+        // Extract search query from URL
+        guard let components = URLComponents(string: url),
+              let queryItem = components.queryItems?.first(where: { $0.name == "search_query" }),
+              let query = queryItem.value
+        else { return nil }
+
+        return query.replacingOccurrences(of: "+", with: " ")
+    }
+
     // MARK: - Download
 
     func download(
