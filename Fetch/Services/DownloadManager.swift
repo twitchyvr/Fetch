@@ -86,12 +86,24 @@ final class DownloadManager {
         combinedArgs += additionalArgs
 
         // Playlist downloads go to a subfolder
+        let baseDir = preset?.outputDirectory ?? defaultOutputDirectory
         let outputDir: String
         if let playlistTitle {
-            let safeTitle = playlistTitle.replacingOccurrences(of: "/", with: "-")
-            outputDir = (preset?.outputDirectory ?? defaultOutputDirectory) + "/\(safeTitle)"
+            // Sanitize: strip path separators, .., control characters, and macOS-illegal chars
+            let safeTitle = Self.sanitizeFilename(playlistTitle)
+            let candidate = NSString(string: baseDir).appendingPathComponent(safeTitle)
+            let expandedBase = NSString(string: baseDir).expandingTildeInPath
+            let expandedCandidate = NSString(string: candidate).expandingTildeInPath
+
+            // Verify the resolved path stays within the base directory
+            if NSString(string: expandedCandidate).standardizingPath
+                .hasPrefix(NSString(string: expandedBase).standardizingPath) {
+                outputDir = candidate
+            } else {
+                outputDir = baseDir // Path traversal attempt — fall back to base
+            }
         } else {
-            outputDir = preset?.outputDirectory ?? defaultOutputDirectory
+            outputDir = baseDir
         }
 
         let task = DownloadTask(
@@ -260,6 +272,28 @@ final class DownloadManager {
             $0.status == .downloading || $0.status == .queued || $0.status == .postprocessing
         }.count
         NotificationService.shared.updateDockBadge(activeCount: activeCount)
+    }
+
+    // MARK: - Path Sanitization
+
+    /// Sanitize a string for use as a directory/file name.
+    /// Strips path separators, .. sequences, control chars, and macOS-illegal characters.
+    static func sanitizeFilename(_ name: String) -> String {
+        var safe = name
+        // Remove path separators and traversal
+        safe = safe.replacingOccurrences(of: "/", with: "-")
+        safe = safe.replacingOccurrences(of: "\\", with: "-")
+        safe = safe.replacingOccurrences(of: "..", with: "")
+        // Remove macOS-illegal characters
+        safe = safe.replacingOccurrences(of: ":", with: "-")
+        safe = safe.replacingOccurrences(of: "\0", with: "")
+        // Remove control characters
+        safe = safe.unicodeScalars.filter { !$0.properties.isDefaultIgnorableCodePoint && $0.value >= 32 }
+            .map { String($0) }.joined()
+        // Trim whitespace and dots (macOS doesn't like leading/trailing dots)
+        safe = safe.trimmingCharacters(in: .whitespacesAndNewlines)
+        safe = safe.trimmingCharacters(in: CharacterSet(charactersIn: "."))
+        return safe.isEmpty ? "Untitled" : safe
     }
 
     // MARK: - Save to History
