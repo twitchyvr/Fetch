@@ -6,11 +6,15 @@ struct DownloadQueueView: View {
     var body: some View {
         Group {
             if manager.activeTasks.isEmpty {
-                ContentUnavailableView(
-                    "No Downloads",
-                    systemImage: "arrow.down.circle.dashed",
-                    description: Text("Start a download from the New Download tab or paste a URL.")
-                )
+                VStack(spacing: Design.Spacing.xl) {
+                    ContentUnavailableView(
+                        "No Downloads",
+                        systemImage: "arrow.down.circle.dashed",
+                        description: Text("Start a download from the New Download tab or paste a URL.")
+                    )
+                    TipBanner()
+                        .padding(.horizontal, Design.Spacing.xxl)
+                }
             } else {
                 List {
                     ForEach(manager.activeTasks) { task in

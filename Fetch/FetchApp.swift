@@ -4,6 +4,8 @@ import SwiftData
 @main
 struct FetchApp: App {
     @State private var downloadManager = DownloadManager()
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @State private var showOnboarding = false
     @Environment(\.openWindow) private var openWindow
 
     init() {
@@ -17,6 +19,14 @@ struct FetchApp: App {
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
                     downloadManager.cancelAll()
                 }
+                .onAppear {
+                    if !hasCompletedOnboarding {
+                        showOnboarding = true
+                    }
+                }
+                .sheet(isPresented: $showOnboarding) {
+                    OnboardingView(isPresented: $showOnboarding)
+                }
         }
         .modelContainer(for: [Download.self, Preset.self])
         .defaultSize(width: 900, height: 600)
@@ -26,6 +36,11 @@ struct FetchApp: App {
                     NSApp.activate()
                 }
                 .keyboardShortcut("n")
+            }
+            CommandGroup(replacing: .help) {
+                Button("Welcome to Fetch...") {
+                    showOnboarding = true
+                }
             }
         }
 
