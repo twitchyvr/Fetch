@@ -4,6 +4,8 @@
 [![macOS 14+](https://img.shields.io/badge/macOS-14%2B-brightgreen)](https://developer.apple.com/macos/)
 [![Swift 6](https://img.shields.io/badge/Swift-6-orange)](https://swift.org)
 
+**[Website](https://twitchyvr.github.io/Fetch/)** | **[Wiki](https://github.com/twitchyvr/Fetch/wiki)** | **[Issues](https://github.com/twitchyvr/Fetch/issues)** | **[Changelog](CHANGELOG.md)**
+
 A native macOS frontend for [yt-dlp](https://github.com/yt-dlp/yt-dlp), built with SwiftUI.
 
 Fetch wraps yt-dlp with a polished native interface — paste a URL, pick a format, download. It dynamically discovers yt-dlp's capabilities at runtime, so when yt-dlp updates with new features or site support, Fetch adapts without needing a rebuild.
