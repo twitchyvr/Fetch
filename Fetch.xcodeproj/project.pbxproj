@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		014950E33F4A647CEBFF455E /* AuroraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 295A40290D9CAEFC8E428801 /* AuroraView.swift */; };
+		1C1E80509C7308DC859BE10C /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57781422AA02941E7974B42F /* LibraryView.swift */; };
 		2165D1FD7509CD7D0B03D34B /* TipBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7827C9F6121D8E7248BFB6F0 /* TipBanner.swift */; };
 		3493B290393BF124FD3FCD9F /* DownloadRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 810C9DED2B14FB17EFA4529A /* DownloadRowView.swift */; };
 		3EB84EE80BE3BC1E29AA4922 /* URLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76D903C6575F2CB42F5F65E8 /* URLParser.swift */; };
@@ -58,6 +59,7 @@
 		3D2E05E552D27BF453B59CF0 /* FormatOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatOption.swift; sourceTree = "<group>"; };
 		3EA8633828937CB26FFECA19 /* Fetch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Fetch.entitlements; sourceTree = "<group>"; };
 		4D5AD7256382F628128A1A8F /* FetchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchApp.swift; sourceTree = "<group>"; };
+		57781422AA02941E7974B42F /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		603D7BFBF85B8544C708F910 /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardMonitor.swift; sourceTree = "<group>"; };
 		6C2623AAB3EB28232466FDDE /* FormatPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatPickerView.swift; sourceTree = "<group>"; };
 		76D903C6575F2CB42F5F65E8 /* URLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLParser.swift; sourceTree = "<group>"; };
@@ -126,6 +128,7 @@
 				810C9DED2B14FB17EFA4529A /* DownloadRowView.swift */,
 				6C2623AAB3EB28232466FDDE /* FormatPickerView.swift */,
 				BE17EB2ADCBD3436D999E2DC /* HistoryView.swift */,
+				57781422AA02941E7974B42F /* LibraryView.swift */,
 				3A4E5FA37B9156D3146D1561 /* NewDownloadView.swift */,
 				A794F31E255F800586B666AB /* OnboardingView.swift */,
 				02F66D521F27304FC866DF21 /* PresetEditorView.swift */,
@@ -269,6 +272,7 @@
 				FEB0B42D3F7AAE255FBB13E6 /* FormatOption.swift in Sources */,
 				F3FD90290BB6125BD843AE6F /* FormatPickerView.swift in Sources */,
 				5F89860AE5866DDA04D7D767 /* HistoryView.swift in Sources */,
+				1C1E80509C7308DC859BE10C /* LibraryView.swift in Sources */,
 				CC20404951AB80477EA91C7A /* NewDownloadView.swift in Sources */,
 				E95B726F299DDC86547F81B4 /* NotificationService.swift in Sources */,
 				AD1529C23B56930C1344ECF8 /* OnboardingView.swift in Sources */,

@@ -29,6 +29,9 @@ struct SidebarView: View {
                 Label(SidebarSection.history.rawValue, systemImage: SidebarSection.history.icon)
                     .tag(SidebarSection.history)
 
+                Label(SidebarSection.library.rawValue, systemImage: SidebarSection.library.icon)
+                    .tag(SidebarSection.library)
+
                 Label(SidebarSection.stats.rawValue, systemImage: SidebarSection.stats.icon)
                     .tag(SidebarSection.stats)
             }
