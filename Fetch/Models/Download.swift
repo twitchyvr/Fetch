@@ -3,7 +3,12 @@ import SwiftData
 
 @Model
 final class Download {
-    #Index<Download>([\.dateCreated], [\.extractor], [\.isFavorite])
+    // Indexes matching actual #Predicate + sort usage:
+    // - [\.status, \.dateCreated]: LibraryView filters on status=="completed" then sorts by dateCreated
+    // - [\.dateCreated]: HistoryView, StatsView, FfmpegLabView all sort by dateCreated with no status filter
+    // extractor/isFavorite are filtered in-memory (Swift Array.filter), not in #Predicate, so
+    // indexes on them would provide zero benefit to current queries.
+    #Index<Download>([\.status, \.dateCreated], [\.dateCreated])
 
     var url: String
     var title: String
