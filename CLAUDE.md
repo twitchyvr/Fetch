@@ -30,25 +30,41 @@ xcodebuild -project Fetch.xcodeproj -scheme Fetch -destination 'platform=macOS' 
 
 ```
 Fetch/
-├── FetchApp.swift              @main entry, WindowGroup + MenuBarExtra + Settings
+├── FetchApp.swift                  @main entry, WindowGroup + MenuBarExtra + Settings
 ├── Models/
-│   ├── Download.swift          SwiftData @Model — persisted download history
-│   ├── Preset.swift            SwiftData @Model — saved download presets
-│   └── FormatOption.swift      Value types: FormatOption + MediaInfo (parsed from yt-dlp JSON)
+│   ├── Download.swift              SwiftData @Model — persisted download history
+│   ├── Preset.swift                SwiftData @Model — saved download presets
+│   └── FormatOption.swift          Value types: FormatOption, MediaInfo, PlaylistInfo
 ├── Services/
-│   ├── YTDLPService.swift      actor — all yt-dlp process execution goes through here
-│   ├── DownloadManager.swift   @Observable @MainActor — download queue, drives UI
-│   └── ClipboardMonitor.swift  @Observable @MainActor — NSPasteboard URL detection
+│   ├── YTDLPService.swift          Actor — all yt-dlp process execution
+│   ├── FfmpegService.swift         Actor — ffprobe analysis + ffmpeg processing
+│   ├── DownloadManager.swift       @Observable @MainActor — download queue, drives UI
+│   ├── ClipboardMonitor.swift      @Observable @MainActor — NSPasteboard URL detection
+│   ├── NotificationService.swift   UNUserNotificationCenter + Dock badge
+│   ├── SpotlightService.swift      CoreSpotlight indexing of downloads
+│   ├── URLParser.swift             Multi-format URL extraction + validation
+│   ├── TextAnalysisService.swift   NaturalLanguage — keywords, sentiment, insights
+│   └── AppIntentsProvider.swift    Siri Shortcuts integration
 └── Views/
-    ├── ContentView.swift       Root NavigationSplitView + ClipboardBanner + SidebarSection enum
-    ├── SidebarView.swift       Sidebar nav + yt-dlp version footer
-    ├── NewDownloadView.swift   URL input → fetch info → format picker → download button
-    ├── DownloadQueueView.swift Active download list + context menus
-    ├── DownloadRowView.swift   Single download row with progress bar
-    ├── FormatPickerView.swift  Full format table (sheet) with filters
-    ├── HistoryView.swift       SwiftData query of past downloads
-    ├── PresetEditorView.swift  Preset list + detail editor (HSplitView)
-    └── SettingsView.swift      App settings (TabView: General, Downloads, Advanced)
+    ├── ContentView.swift           Root NavigationSplitView + ClipboardBanner + SidebarSection enum
+    ├── SidebarView.swift           Sidebar nav + yt-dlp version footer
+    ├── NewDownloadView.swift       URL input → fetch info → format picker → download
+    ├── DownloadQueueView.swift     Active download list + context menus
+    ├── DownloadRowView.swift       Single download row with progress bar
+    ├── FormatPickerView.swift      Full format table (sheet) with filters
+    ├── PlaylistPickerView.swift    Playlist entry picker with 5 download modes
+    ├── TranscriptOptionsView.swift Subtitle language/format picker
+    ├── AdvancedOptionsView.swift   Post-processing, network, auth, output options
+    ├── HistoryView.swift           SwiftData query of past downloads
+    ├── LibraryView.swift           Catalog with sort/filter/search, list+grid views
+    ├── StatsView.swift             Swift Charts — extractor, format, timeline
+    ├── FfmpegLabView.swift         8-panel post-processing lab
+    ├── PresetEditorView.swift      Preset list + detail editor (HSplitView)
+    ├── SettingsView.swift          App settings (TabView: General, Downloads, Advanced)
+    ├── OnboardingView.swift        4-step interactive walkthrough
+    ├── DesignSystem.swift          Apple design tokens — colors, spacing, elevation
+    ├── AuroraView.swift            Animated gradients + shimmer + pulsing glow
+    └── TipBanner.swift             Rotating contextual tips for empty states
 ```
 
 ## Key Patterns — READ BEFORE CODING
