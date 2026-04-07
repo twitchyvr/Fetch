@@ -328,7 +328,8 @@ struct LibraryView: View {
             let data = try JSONSerialization.data(withJSONObject: records, options: [.prettyPrinted, .sortedKeys])
             try data.write(to: url)
         } catch {
-            NSLog("Failed to export JSON: \(error.localizedDescription)")
+            // Internal-only log, no UI surface; do not include error.localizedDescription which can leak file paths
+            NSLog("Library: JSON export failed")
         }
     }
 
@@ -358,7 +359,8 @@ struct LibraryView: View {
         do {
             try csv.write(to: url, atomically: true, encoding: .utf8)
         } catch {
-            NSLog("Failed to export CSV: \(error.localizedDescription)")
+            // Internal-only log, no UI surface; do not include error.localizedDescription which can leak file paths
+            NSLog("Library: CSV export failed")
         }
     }
 

@@ -385,4 +385,110 @@ struct SecurityTests {
         let urls = URLParser.extractURLs(from: "file:///etc/passwd\njavascript:alert(1)\ndata:text/html,<h1>hi</h1>")
         #expect(urls.isEmpty)
     }
+
+    // MARK: - Error message sanitization (must never leak internal details)
+
+    @Test("YTDLPError sanitizer does not leak absolute file paths")
+    func sanitizerDropsPaths() {
+        let stderr = "ERROR: Cookies file /Users/mattrogers/Library/Cookies/secret.txt could not be loaded"
+        let safe = YTDLPError.sanitize(stderr: stderr)
+        #expect(!safe.contains("/Users/mattrogers"))
+        #expect(!safe.contains("secret.txt"))
+        #expect(!safe.contains("/Library/Cookies"))
+    }
+
+    @Test("YTDLPError sanitizer does not leak hostnames or HTTP details")
+    func sanitizerDropsHostnames() {
+        let stderr = "ERROR: [generic] Unable to download webpage: HTTPSConnection(host='private-server.internal.example.com', port=443): Failed to resolve"
+        let safe = YTDLPError.sanitize(stderr: stderr)
+        #expect(!safe.contains("private-server.internal.example.com"))
+        #expect(!safe.contains("HTTPSConnection"))
+        #expect(!safe.contains("[generic]"))
+    }
+
+    @Test("YTDLPError sanitizer does not leak Python tracebacks")
+    func sanitizerDropsTracebacks() {
+        let stderr = """
+        Traceback (most recent call last):
+          File "/opt/homebrew/lib/python3.12/site-packages/yt_dlp/extractor/youtube.py", line 1234, in _extract
+            raise ExtractorError("internal: foo")
+        ExtractorError: internal: foo
+        """
+        let safe = YTDLPError.sanitize(stderr: stderr)
+        #expect(!safe.contains("Traceback"))
+        #expect(!safe.contains("/opt/homebrew"))
+        #expect(!safe.contains("python3.12"))
+        #expect(!safe.contains("ExtractorError"))
+    }
+
+    @Test("YTDLPError sanitizer maps DNS failure to friendly message")
+    func sanitizerNetworkError() {
+        let stderr = "ERROR: Unable to download webpage: <urlopen error [Errno 8] nodename nor servname provided>"
+        let safe = YTDLPError.sanitize(stderr: stderr)
+        #expect(safe.contains("internet connection"))
+        #expect(!safe.contains("urlopen"))
+        #expect(!safe.contains("Errno"))
+    }
+
+    @Test("YTDLPError sanitizer maps HTTP 403 to access-refused message")
+    func sanitizerForbidden() {
+        let stderr = "ERROR: unable to download video data: HTTP Error 403: Forbidden"
+        let safe = YTDLPError.sanitize(stderr: stderr)
+        #expect(safe.contains("refused") || safe.contains("region-locked"))
+        #expect(!safe.contains("HTTP Error 403"))
+    }
+
+    @Test("YTDLPError sanitizer maps unsupported URL to friendly message")
+    func sanitizerUnsupportedURL() {
+        let stderr = "ERROR: Unsupported URL: https://example.com/auth?token=abc123secret"
+        let safe = YTDLPError.sanitize(stderr: stderr)
+        #expect(!safe.contains("token=abc123secret"))
+        #expect(!safe.contains("example.com"))
+        #expect(safe.contains("recognize") || safe.contains("video page"))
+    }
+
+    @Test("YTDLPError sanitizer falls back to generic message for unknown stderr")
+    func sanitizerUnknownFallback() {
+        // Random gibberish that matches no known pattern — must NOT echo through
+        let stderr = "ERROR: weird internal yt-dlp message with /Users/secret/path and 192.168.1.5 and api_key=ABC"
+        let safe = YTDLPError.sanitize(stderr: stderr)
+        #expect(!safe.contains("/Users/secret/path"))
+        #expect(!safe.contains("192.168.1.5"))
+        #expect(!safe.contains("api_key=ABC"))
+        #expect(!safe.contains("weird internal"))
+    }
+
+    @Test("YTDLPError errorDescription returns sanitized text, not raw")
+    func errorDescriptionUsesSanitizer() {
+        let err = YTDLPError.processError(code: 1, rawDetail: "ERROR: HTTPSConnection(host='leaky.example.com'): Failed to resolve")
+        let description = err.errorDescription ?? ""
+        #expect(!description.contains("leaky.example.com"))
+        #expect(!description.contains("HTTPSConnection"))
+    }
+
+    @Test("YTDLPError internalDetail preserves raw stderr for logging")
+    func internalDetailPreservesRaw() {
+        let raw = "ERROR: HTTPSConnection(host='private.example.com'): Failed to resolve"
+        let err = YTDLPError.processError(code: 1, rawDetail: raw)
+        // internalDetail is meant for developer logs only, so it CAN include the raw text
+        #expect(err.internalDetail?.contains(raw) == true)
+    }
+
+    @Test("FfmpegError sanitizer does not leak absolute file paths")
+    func ffmpegSanitizerDropsPaths() {
+        let stderr = "/Users/mattrogers/Movies/private.mkv: No such file or directory"
+        let safe = FfmpegError.sanitize(stderr: stderr)
+        #expect(!safe.contains("/Users/mattrogers"))
+        #expect(!safe.contains("private.mkv"))
+        #expect(safe.contains("couldn't be found") || safe.contains("not be found"))
+    }
+
+    @Test("FfmpegError sanitizer maps invalid data to corrupt-file message")
+    func ffmpegSanitizerCorrupt() {
+        let stderr = "[mov,mp4,m4a,3gp,3g2,mj2 @ 0x148e042e0] moov atom not found\nInvalid data found when processing input"
+        let safe = FfmpegError.sanitize(stderr: stderr)
+        #expect(safe.contains("corrupt") || safe.contains("supported"))
+        #expect(!safe.contains("0x148e042e0"))
+        #expect(!safe.contains("moov atom"))
+    }
 }
