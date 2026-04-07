@@ -27,6 +27,16 @@ final class Download {
     // Favorites
     var isFavorite: Bool
 
+    // Rich metadata (from yt-dlp --dump-json)
+    var videoDescription: String?
+    var uploaderName: String?
+    var webpageURL: String?
+    var viewCount: Int64?
+    var likeCount: Int64?
+    var commentCount: Int64?
+    var channelURL: String?
+    var tags: String?  // comma-separated for SwiftData compatibility
+
     // Playlist / Collection grouping
     var playlistTitle: String?
     var playlistIndex: Int?
@@ -44,6 +54,14 @@ final class Download {
         extractor: String? = nil,
         duration: Double? = nil,
         isFavorite: Bool = false,
+        videoDescription: String? = nil,
+        uploaderName: String? = nil,
+        webpageURL: String? = nil,
+        viewCount: Int64? = nil,
+        likeCount: Int64? = nil,
+        commentCount: Int64? = nil,
+        channelURL: String? = nil,
+        tags: String? = nil,
         playlistTitle: String? = nil,
         playlistIndex: Int? = nil,
         playlistId: String? = nil
@@ -59,10 +77,26 @@ final class Download {
         self.extractor = extractor
         self.duration = duration
         self.isFavorite = isFavorite
+        self.videoDescription = videoDescription
+        self.uploaderName = uploaderName
+        self.webpageURL = webpageURL
+        self.viewCount = viewCount
+        self.likeCount = likeCount
+        self.commentCount = commentCount
+        self.channelURL = channelURL
+        self.tags = tags
         self.playlistTitle = playlistTitle
         self.playlistIndex = playlistIndex
         self.playlistId = playlistId
         self.dateCreated = Date()
+    }
+
+    /// Unit separator (U+001F) — ASCII control char that yt-dlp tags cannot contain,
+    /// so joining/splitting is collision-safe even for tags that contain commas.
+    static let tagSeparator: Character = "\u{1F}"
+
+    var tagList: [String] {
+        tags?.split(separator: Self.tagSeparator).map(String.init) ?? []
     }
 
     var downloadStatus: DownloadStatus {

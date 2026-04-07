@@ -81,6 +81,7 @@ final class DownloadManager {
         thumbnailURL: String? = nil,
         extractor: String? = nil,
         duration: Double? = nil,
+        mediaInfo: MediaInfo? = nil,
         playlistTitle: String? = nil,
         playlistIndex: Int? = nil,
         playlistId: String? = nil,
@@ -121,6 +122,14 @@ final class DownloadManager {
             thumbnailURL: thumbnailURL,
             extractor: extractor,
             duration: duration,
+            videoDescription: mediaInfo?.description,
+            uploaderName: mediaInfo?.uploader,
+            webpageURL: mediaInfo?.webpageURL,
+            viewCount: mediaInfo?.viewCount.map { Int64($0) },
+            likeCount: mediaInfo?.likeCount.map { Int64($0) },
+            commentCount: mediaInfo?.commentCount.map { Int64($0) },
+            channelURL: mediaInfo?.channelURL,
+            tags: mediaInfo?.tags.isEmpty == false ? mediaInfo!.tags.joined(separator: String(Download.tagSeparator)) : nil,
             playlistTitle: playlistTitle,
             playlistIndex: playlistIndex,
             playlistId: playlistId,
@@ -335,6 +344,14 @@ final class DownloadManager {
             thumbnailURL: task.thumbnailURL,
             extractor: task.extractor,
             duration: task.duration,
+            videoDescription: task.videoDescription,
+            uploaderName: task.uploaderName,
+            webpageURL: task.webpageURL,
+            viewCount: task.viewCount,
+            likeCount: task.likeCount,
+            commentCount: task.commentCount,
+            channelURL: task.channelURL,
+            tags: task.tags,
             playlistTitle: task.playlistTitle,
             playlistIndex: task.playlistIndex,
             playlistId: task.playlistId
@@ -368,6 +385,14 @@ final class DownloadTask: Identifiable, @unchecked Sendable {
     let thumbnailURL: String?
     let extractor: String?
     let duration: Double?
+    let videoDescription: String?
+    let uploaderName: String?
+    let webpageURL: String?
+    let viewCount: Int64?
+    let likeCount: Int64?
+    let commentCount: Int64?
+    let channelURL: String?
+    let tags: String?
     let playlistTitle: String?
     let playlistIndex: Int?
     let playlistId: String?
@@ -395,6 +420,14 @@ final class DownloadTask: Identifiable, @unchecked Sendable {
         thumbnailURL: String? = nil,
         extractor: String? = nil,
         duration: Double? = nil,
+        videoDescription: String? = nil,
+        uploaderName: String? = nil,
+        webpageURL: String? = nil,
+        viewCount: Int64? = nil,
+        likeCount: Int64? = nil,
+        commentCount: Int64? = nil,
+        channelURL: String? = nil,
+        tags: String? = nil,
         playlistTitle: String? = nil,
         playlistIndex: Int? = nil,
         playlistId: String? = nil,
@@ -410,6 +443,14 @@ final class DownloadTask: Identifiable, @unchecked Sendable {
         self.thumbnailURL = thumbnailURL
         self.extractor = extractor
         self.duration = duration
+        self.videoDescription = videoDescription
+        self.uploaderName = uploaderName
+        self.webpageURL = webpageURL
+        self.viewCount = viewCount
+        self.likeCount = likeCount
+        self.commentCount = commentCount
+        self.channelURL = channelURL
+        self.tags = tags
         self.playlistTitle = playlistTitle
         self.playlistIndex = playlistIndex
         self.playlistId = playlistId

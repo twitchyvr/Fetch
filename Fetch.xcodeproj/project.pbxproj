@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00B63D0E713156EBA6EB401D /* VideoDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B962AEC5AA08851E7AE59DF7 /* VideoDetailView.swift */; };
 		014950E33F4A647CEBFF455E /* AuroraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 295A40290D9CAEFC8E428801 /* AuroraView.swift */; };
 		03E9BC586CEEAB990482A0B2 /* FfmpegService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3F461C4CA34D76C3800B75 /* FfmpegService.swift */; };
 		1C1E80509C7308DC859BE10C /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57781422AA02941E7974B42F /* LibraryView.swift */; };
@@ -84,6 +85,7 @@
 		A5F8777C9ABE883DC2DE1A33 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A794F31E255F800586B666AB /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		B2015C2DFB9042CD95C78E28 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		B962AEC5AA08851E7AE59DF7 /* VideoDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoDetailView.swift; sourceTree = "<group>"; };
 		BE17EB2ADCBD3436D999E2DC /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		C50FE8D8EB834FCF61AD11C6 /* YTDLPService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTDLPService.swift; sourceTree = "<group>"; };
 		C946C5589F74BF7E12EE6610 /* AppIntentsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIntentsProvider.swift; sourceTree = "<group>"; };
@@ -160,6 +162,7 @@
 				DC91BF95A053821F8DB23D3F /* StatsView.swift */,
 				7827C9F6121D8E7248BFB6F0 /* TipBanner.swift */,
 				ECACC22DF7BE18756DACF65F /* TranscriptOptionsView.swift */,
+				B962AEC5AA08851E7AE59DF7 /* VideoDetailView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -315,6 +318,7 @@
 				2165D1FD7509CD7D0B03D34B /* TipBanner.swift in Sources */,
 				D9A8B648A1EB467679FA8F04 /* TranscriptOptionsView.swift in Sources */,
 				3EB84EE80BE3BC1E29AA4922 /* URLParser.swift in Sources */,
+				00B63D0E713156EBA6EB401D /* VideoDetailView.swift in Sources */,
 				8A23B88E7E891442E1235D64 /* YTDLPService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

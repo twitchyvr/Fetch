@@ -23,6 +23,7 @@ struct NewDownloadView: View {
     @State private var batchSelected: Set<String> = []
     @State private var playlistInfo: PlaylistInfo?
     @State private var showPlaylistPicker = false
+    @State private var showVideoDetail = false
 
     // NLP insights (computed off main thread)
     @State private var contentInsights: [TextAnalysisService.ContentInsight] = []
@@ -423,11 +424,15 @@ struct NewDownloadView: View {
         }
         .cardStyle()
         .hoverLift()
+        .onTapGesture { showVideoDetail = true }
         .sheet(isPresented: $showFormatPicker) {
             FormatPickerView(
                 mediaInfo: info,
                 selectedFormat: $selectedFormat
             )
+        }
+        .sheet(isPresented: $showVideoDetail) {
+            VideoDetailView(mediaInfo: info)
         }
     }
 
@@ -560,7 +565,8 @@ struct NewDownloadView: View {
             additionalArgs: transcriptArgs + advancedArgs,
             thumbnailURL: mediaInfo.thumbnailURL?.absoluteString,
             extractor: mediaInfo.extractor,
-            duration: mediaInfo.duration
+            duration: mediaInfo.duration,
+            mediaInfo: mediaInfo
         )
 
         // Reset for next download
