@@ -2,7 +2,7 @@ name: Fetch
 options:
   bundleIdPrefix: com.mattrogers
   deploymentTarget:
-    macOS: "14.0"
+    macOS: "15.0"
   createIntermediateGroups: true
 settings:
   base:

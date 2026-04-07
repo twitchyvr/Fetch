@@ -1,7 +1,7 @@
 # Fetch
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-brightgreen)](https://developer.apple.com/macos/)
+[![macOS 15+](https://img.shields.io/badge/macOS-15%2B-brightgreen)](https://developer.apple.com/macos/)
 [![Swift 6](https://img.shields.io/badge/Swift-6-orange)](https://swift.org)
 
 [![Download](https://img.shields.io/github/v/release/twitchyvr/Fetch?label=Download&color=blue)](https://github.com/twitchyvr/Fetch/releases/latest)
@@ -49,7 +49,7 @@ Fetch wraps yt-dlp with a polished native interface — paste a URL, pick a form
 
 ## Requirements
 
-- macOS 14.0 (Sonoma) or later
+- macOS 15.0 (Sequoia) or later
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp) installed via Homebrew: `brew install yt-dlp`
 - [ffmpeg](https://ffmpeg.org/) recommended for format merging: `brew install ffmpeg`
 

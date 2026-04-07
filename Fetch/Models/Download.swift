@@ -3,6 +3,8 @@ import SwiftData
 
 @Model
 final class Download {
+    #Index<Download>([\.dateCreated], [\.extractor], [\.isFavorite])
+
     var url: String
     var title: String
     var status: String
