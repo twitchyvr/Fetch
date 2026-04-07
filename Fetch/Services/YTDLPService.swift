@@ -52,7 +52,7 @@ actor YTDLPService {
         guard let data = result.output.data(using: .utf8),
               let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
         else {
-            throw YTDLPError.parseError("Failed to parse media info JSON")
+            throw YTDLPError.parseError(detail: "Failed to parse media info JSON")
         }
 
         return MediaInfo(json: json, url: url)
@@ -338,7 +338,7 @@ actor YTDLPService {
                 if proc.terminationStatus != 0 {
                     continuation.resume(throwing: YTDLPError.processError(
                         code: proc.terminationStatus,
-                        message: errStr.isEmpty ? outStr : errStr
+                        rawDetail: errStr.isEmpty ? outStr : errStr
                     ))
                 } else {
                     continuation.resume(returning: ShellResult(
@@ -401,7 +401,7 @@ actor YTDLPService {
                 } else {
                     continuation.resume(throwing: YTDLPError.processError(
                         code: proc.terminationStatus,
-                        message: "yt-dlp exited with code \(proc.terminationStatus)"
+                        rawDetail: "yt-dlp exited with code \(proc.terminationStatus)"
                     ))
                 }
             }
@@ -446,18 +446,107 @@ struct CLIOption: Identifiable, Sendable {
 
 enum YTDLPError: LocalizedError {
     case binaryNotFound
-    case processError(code: Int32, message: String)
-    case parseError(String)
+    /// `rawDetail` is captured for internal logging only — NEVER surfaced to the UI.
+    /// `errorDescription` returns a sanitized message that drops paths, hostnames,
+    /// tracebacks, and any other internal details from yt-dlp stderr.
+    case processError(code: Int32, rawDetail: String)
+    case parseError(detail: String)
 
     var errorDescription: String? {
         switch self {
         case .binaryNotFound:
-            "yt-dlp not found. Install via Homebrew: brew install yt-dlp"
-        case .processError(let code, let message):
-            "yt-dlp error (code \(code)): \(message)"
-        case .parseError(let detail):
-            "Failed to parse yt-dlp output: \(detail)"
+            return "yt-dlp not found. Install it via Homebrew: brew install yt-dlp"
+        case .processError(_, let rawDetail):
+            return Self.sanitize(stderr: rawDetail)
+        case .parseError:
+            return "Couldn't read information about this video. Try a different URL."
         }
+    }
+
+    /// Internal-only: the raw stderr captured from the yt-dlp process. Use only for
+    /// developer logging, never for UI display.
+    var internalDetail: String? {
+        switch self {
+        case .binaryNotFound: return nil
+        case .processError(let code, let rawDetail): return "code \(code): \(rawDetail)"
+        case .parseError(let detail): return detail
+        }
+    }
+
+    /// Maps known yt-dlp stderr patterns to user-safe messages. The raw stderr is
+    /// NEVER returned — unmatched errors fall through to a generic message. This is
+    /// a defense against leaking absolute paths, hostnames, cookie locations, auth
+    /// tokens in URLs, Python tracebacks, and internal yt-dlp module identifiers.
+    static func sanitize(stderr: String) -> String {
+        let lower = stderr.lowercased()
+
+        // --- Network failures ---
+        if lower.contains("nodename nor servname")
+            || lower.contains("could not resolve")
+            || lower.contains("temporary failure in name resolution")
+            || lower.contains("name or service not known") {
+            return "Couldn't reach the server. Check your internet connection."
+        }
+        if lower.contains("connection refused")
+            || lower.contains("connection timed out")
+            || lower.contains("network is unreachable") {
+            return "The server isn't responding. Try again in a moment."
+        }
+        if lower.contains("ssl") && (lower.contains("certificate") || lower.contains("handshake")) {
+            return "Couldn't establish a secure connection to the server."
+        }
+
+        // --- HTTP statuses ---
+        if lower.contains("http error 403") || lower.contains("forbidden") {
+            return "Access was refused. The video may be region-locked or require sign-in."
+        }
+        if lower.contains("http error 404") {
+            return "Video not found. It may have been removed."
+        }
+        if lower.contains("http error 429") || lower.contains("too many requests") {
+            return "Rate-limited by the server. Wait a moment and try again."
+        }
+        if lower.contains("http error 5") {
+            return "The server returned an error. Try again later."
+        }
+
+        // --- Common yt-dlp messages ---
+        if lower.contains("video unavailable") || lower.contains("video has been removed") {
+            return "This video is no longer available."
+        }
+        if lower.contains("private video") || lower.contains("members-only")
+            || lower.contains("members only") {
+            return "This video is private or members-only."
+        }
+        if lower.contains("age") && (lower.contains("restricted") || lower.contains("confirm")) {
+            return "This video is age-restricted. Sign-in cookies may be required."
+        }
+        if lower.contains("sign in") || lower.contains("login required")
+            || lower.contains("requires authentication") {
+            return "This video requires sign-in. Add a cookies file in Advanced Options."
+        }
+        if lower.contains("not available in your country")
+            || lower.contains("not available in your location")
+            || lower.contains("geo") && lower.contains("block") {
+            return "This video isn't available in your region."
+        }
+        if lower.contains("unsupported url") {
+            return "Fetch doesn't recognize this URL. Make sure it points to a video page."
+        }
+        if lower.contains("live event will begin")
+            || lower.contains("premiere will begin")
+            || lower.contains("upcoming") {
+            return "This live stream or premiere hasn't started yet."
+        }
+        if lower.contains("copyright") {
+            return "This video is unavailable due to copyright restrictions."
+        }
+        if lower.contains("postprocessing") || lower.contains("ffmpeg") {
+            return "Couldn't post-process the downloaded file. Make sure FFmpeg is installed."
+        }
+
+        // --- Default: never echo raw stderr ---
+        return "yt-dlp couldn't process this video. Try a different URL or update yt-dlp."
     }
 }
 

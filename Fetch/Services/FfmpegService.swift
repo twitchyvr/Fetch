@@ -56,7 +56,7 @@ actor FfmpegService {
         guard let data = output.data(using: .utf8),
               let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
         else {
-            throw FfmpegError.parseError("Failed to parse ffprobe output")
+            throw FfmpegError.parseError(detail: "Failed to parse ffprobe output")
         }
 
         return MediaProbe(json: json, filePath: filePath)
@@ -118,7 +118,7 @@ actor FfmpegService {
                     let errStr = String(data: outputBuffer.get(), encoding: .utf8) ?? ""
                     continuation.resume(throwing: FfmpegError.processError(
                         code: proc.terminationStatus,
-                        message: errStr
+                        rawDetail: errStr
                     ))
                 }
             }
@@ -168,7 +168,7 @@ actor FfmpegService {
                     continuation.resume(returning: outStr)
                 } else {
                     continuation.resume(throwing: FfmpegError.processError(
-                        code: proc.terminationStatus, message: outStr
+                        code: proc.terminationStatus, rawDetail: outStr
                     ))
                 }
             }
@@ -252,17 +252,62 @@ struct MediaProbe: Sendable {
 
 enum FfmpegError: LocalizedError {
     case binaryNotFound
-    case processError(code: Int32, message: String)
-    case parseError(String)
+    /// `rawDetail` is captured for internal logging only — NEVER surfaced to the UI.
+    /// `errorDescription` returns a sanitized message that drops absolute paths,
+    /// ffmpeg internal command details, and raw stderr.
+    case processError(code: Int32, rawDetail: String)
+    case parseError(detail: String)
 
     var errorDescription: String? {
         switch self {
         case .binaryNotFound:
-            "FFmpeg not found. Install via Homebrew: brew install ffmpeg"
-        case .processError(let code, let message):
-            "FFmpeg error (code \(code)): \(message)"
-        case .parseError(let detail):
-            "Failed to parse FFmpeg output: \(detail)"
+            return "FFmpeg not found. Install it via Homebrew: brew install ffmpeg"
+        case .processError(_, let rawDetail):
+            return Self.sanitize(stderr: rawDetail)
+        case .parseError:
+            return "Couldn't read information about this file."
         }
+    }
+
+    /// Internal-only: the raw stderr from ffmpeg. Use only for developer logging.
+    var internalDetail: String? {
+        switch self {
+        case .binaryNotFound: return nil
+        case .processError(let code, let rawDetail): return "code \(code): \(rawDetail)"
+        case .parseError(let detail): return detail
+        }
+    }
+
+    /// Maps known ffmpeg stderr patterns to user-safe messages. Drops file paths,
+    /// command-line details, and any raw stderr.
+    static func sanitize(stderr: String) -> String {
+        let lower = stderr.lowercased()
+
+        if lower.contains("no such file or directory") {
+            return "The input file couldn't be found. It may have been moved or deleted."
+        }
+        if lower.contains("permission denied") {
+            return "Permission denied accessing the file."
+        }
+        if lower.contains("invalid data found") || lower.contains("moov atom not found") {
+            return "The input file is corrupt or not a supported media format."
+        }
+        if lower.contains("encoder not found") || lower.contains("unknown encoder") {
+            return "The selected codec isn't available in your FFmpeg build."
+        }
+        if lower.contains("decoder not found") || lower.contains("unknown decoder") {
+            return "The input file uses a codec your FFmpeg build can't decode."
+        }
+        if lower.contains("no space left on device") {
+            return "Out of disk space. Free up some space and try again."
+        }
+        if lower.contains("conversion failed") || lower.contains("error initializing filter") {
+            return "FFmpeg couldn't process the file with these settings. Try different options."
+        }
+        if lower.contains("output file") && lower.contains("already exists") {
+            return "An output file with that name already exists."
+        }
+
+        return "FFmpeg couldn't process this file. Try different settings or check the input."
     }
 }
