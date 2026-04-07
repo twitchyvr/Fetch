@@ -18,6 +18,7 @@ struct LibraryView: View {
     @State private var filterFavorites = false
     @State private var viewMode: ViewMode = .list
     @State private var fileExistsCache: [String: Bool] = [:]
+    @State private var selectedDownload: Download?
 
     // MARK: - Body
 
@@ -48,6 +49,9 @@ struct LibraryView: View {
         .searchable(text: $searchText, prompt: "Search library...")
         .toolbar { toolbarContent }
         .task { await checkAllFileExistence() }
+        .sheet(item: $selectedDownload) { download in
+            VideoDetailView(download: download)
+        }
     }
 
     // MARK: - List View
@@ -58,6 +62,8 @@ struct LibraryView: View {
                 download: download,
                 fileExists: fileExistsCache[download.outputPath ?? ""] ?? true
             )
+            .contentShape(Rectangle())
+            .onTapGesture { selectedDownload = download }
             .contextMenu { contextMenuItems(for: download) }
         }
         .listStyle(.inset(alternatesRowBackgrounds: true))
@@ -76,6 +82,7 @@ struct LibraryView: View {
                         download: download,
                         fileExists: fileExistsCache[download.outputPath ?? ""] ?? true
                     )
+                    .onTapGesture { selectedDownload = download }
                     .contextMenu { contextMenuItems(for: download) }
                 }
             }
@@ -173,6 +180,10 @@ struct LibraryView: View {
                 }
                 Divider()
             }
+        }
+
+        Button("View Details") {
+            selectedDownload = download
         }
 
         Button("Copy URL") {
