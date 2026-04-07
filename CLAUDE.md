@@ -5,7 +5,7 @@ Native macOS SwiftUI frontend for [yt-dlp](https://github.com/yt-dlp/yt-dlp). Wr
 ## Tech Stack
 
 - **Swift 6.3** (strict concurrency enabled)
-- **SwiftUI** macOS 14+ (Sonoma), `NavigationSplitView` layout
+- **SwiftUI** macOS 15+ (Sequoia), `NavigationSplitView` layout
 - **SwiftData** for download history and presets
 - **XcodeGen** for project generation from `project.yml`
 - **Zero external Swift package dependencies** — keep it this way
