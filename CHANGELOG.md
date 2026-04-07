@@ -6,9 +6,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 ## [Unreleased]
 
 ### Added
+- **Video detail view** — rich metadata sheet showing description, view/like/comment counts, channel, tags, categories, share URL, and file info. Accessible from New Download media card and Library row tap (#99)
 - YouTube search integration — paste search URLs, browse results (#97)
 
+### Changed
+- **Minimum macOS version raised to 15.0 (Sequoia)** — required for SwiftData 2.0 `#Index` macro (#105)
+
+### Performance
+- SwiftData indexes on `[\.status, \.dateCreated]` compound + `[\.dateCreated]` single — matches LibraryView's `#Predicate` filter-then-sort and the sort-only queries in HistoryView, StatsView, and FfmpegLabView. Eliminates table scans (#105)
+
 ### Fixed
+- Broken `playlist-picker-view.png` references in README and landing page (#108)
+- README, CLAUDE.md, and Wiki architecture trees synced to current source (9 services, 19 views, 3 models) (#108)
 - Download button moved above fold — visible without scrolling (#102)
 - URL scheme validation — blocks file://, javascript:// (#93)
 - Dangerous yt-dlp flag deny-list — --exec, --batch-file filtered (#94)
