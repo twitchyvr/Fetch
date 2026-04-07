@@ -27,3 +27,5 @@ build/
 *.swp
 *~
 fwid
+release-build/
+*.dmg
