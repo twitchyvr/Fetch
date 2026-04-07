@@ -338,21 +338,33 @@ struct NewDownloadView: View {
                 }
             }
 
-            // Preset picker
-            if !presets.isEmpty {
-                Picker("Preset", selection: $selectedPreset) {
-                    Text("None").tag(nil as Preset?)
-                    ForEach(presets) { preset in
-                        Text(preset.name).tag(preset as Preset?)
+            // Preset picker + Download button — primary actions visible without scrolling
+            HStack {
+                if !presets.isEmpty {
+                    Picker("Preset", selection: $selectedPreset) {
+                        Text("None").tag(nil as Preset?)
+                        ForEach(presets) { preset in
+                            Text(preset.name).tag(preset as Preset?)
+                        }
                     }
+                    .pickerStyle(.menu)
+                    .frame(maxWidth: 200)
                 }
-                .pickerStyle(.menu)
+
+                Spacer()
+
+                Button(action: startDownload) {
+                    Label("Download", systemImage: "arrow.down.circle.fill")
+                }
+                .buttonStyle(GradientButtonStyle())
+                .keyboardShortcut(.return)
             }
 
-            // Transcript/subtitle options (contextual — only when subtitles available)
+            Divider()
+
+            // Secondary controls — subtitles, advanced options, suggestions
             TranscriptOptionsView(mediaInfo: info, transcriptArgs: $transcriptArgs)
 
-            // Advanced options
             DisclosureGroup("Advanced Options") {
                 AdvancedOptionsView(args: $advancedArgs)
             }
@@ -381,7 +393,7 @@ struct NewDownloadView: View {
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Design.Radius.standard))
             }
 
-            // AI Content Insights (computed off main thread)
+            // AI Content Insights
             if !contentInsights.isEmpty {
                 VStack(alignment: .leading, spacing: Design.Spacing.sm) {
                     Label("Content Insights", systemImage: "cpu")
@@ -407,16 +419,6 @@ struct NewDownloadView: View {
                 }
                 .padding(Design.Spacing.md)
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Design.Radius.standard))
-            }
-
-            // Download button
-            HStack {
-                Spacer()
-                Button(action: startDownload) {
-                    Label("Download", systemImage: "arrow.down.circle.fill")
-                }
-                .buttonStyle(GradientButtonStyle())
-                .keyboardShortcut(.return)
             }
         }
         .cardStyle()
