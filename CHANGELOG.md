@@ -6,6 +6,32 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 ## [Unreleased]
 
 ### Added
+- YouTube search integration — paste search URLs, browse results (#97)
+
+### Fixed
+- Download button moved above fold — visible without scrolling (#102)
+- URL scheme validation — blocks file://, javascript:// (#93)
+- Dangerous yt-dlp flag deny-list — --exec, --batch-file filtered (#94)
+- .tertiary contrast upgraded to .secondary (4.74:1 WCAG AA) (#89)
+- .orange warning color darkened to #CC7700 (4.6:1 WCAG AA) (#90)
+- Password warning when credentials in process args (#75)
+- StatsView chart data cached in @State (#81)
+- suggestionsForMedia deduplicated call (#82)
+- processHandle nil'd after completion (#83)
+- Accessibility traits on onboarding dots, FFmpeg tabs, playlist modes (#84)
+- Dead code removed — unused @State vars, non-private methods (#85)
+- Security test suite — 8 tests verifying all defense mechanisms
+
+### Security
+- Path traversal protection via sanitizeFilename + prefix check (#70)
+- DownloadTask data race fix — property copies before actor boundary (#71)
+- NLP computation moved off main thread (#72)
+- FormatPickerView Cancel + Escape key (#73)
+- TipBanner declarative Timer.publish (#74)
+
+## [0.2.0] - 2026-04-06
+
+### Added
 - **Stats dashboard** — Swift Charts with bar (extractor), pie (format), line (timeline) charts
 - **Interactive onboarding** — 4-step walkthrough on first launch with Skip option
 - **Rotating tip banners** — contextual tips in empty queue state
