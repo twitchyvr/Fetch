@@ -5,7 +5,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [0.2.1-beta.1] - 2026-04-07
+
+First beta of the v0.2.1 release. Code-signed with Developer ID. Not yet notarized — see #134.
+
 ### Added
+- **App icon** — custom-designed squircle with the Fetch blue→purple gradient and a download arrow. The previous releases shipped without an icon
 - **Video detail view** — rich metadata sheet showing description, view/like/comment counts, channel, tags, categories, share URL, and file info. Accessible from New Download media card and Library row tap (#99)
 - YouTube search integration — paste search URLs, browse results (#97)
 
@@ -14,6 +19,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ### Performance
 - SwiftData indexes on `[\.status, \.dateCreated]` compound + `[\.dateCreated]` single — matches LibraryView's `#Predicate` filter-then-sort and the sort-only queries in HistoryView, StatsView, and FfmpegLabView. Eliminates table scans (#105)
+
+### Security
+- **Sanitized error messages** — yt-dlp and ffmpeg stderr no longer leak absolute file paths, cookie file paths, hostnames, auth tokens in URLs, Python tracebacks, or internal module identifiers. 15+ known patterns map to user-safe messages, unknowns fall back to a generic message, raw text preserved only on `internalDetail` for developer logs (#114)
 
 ### Fixed
 - Broken `playlist-picker-view.png` references in README and landing page (#108)
