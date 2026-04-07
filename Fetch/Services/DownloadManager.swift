@@ -129,7 +129,7 @@ final class DownloadManager {
             likeCount: mediaInfo?.likeCount.map { Int64($0) },
             commentCount: mediaInfo?.commentCount.map { Int64($0) },
             channelURL: mediaInfo?.channelURL,
-            tags: mediaInfo?.tags.isEmpty == false ? mediaInfo!.tags.joined(separator: ", ") : nil,
+            tags: mediaInfo?.tags.isEmpty == false ? mediaInfo!.tags.joined(separator: String(Download.tagSeparator)) : nil,
             playlistTitle: playlistTitle,
             playlistIndex: playlistIndex,
             playlistId: playlistId,

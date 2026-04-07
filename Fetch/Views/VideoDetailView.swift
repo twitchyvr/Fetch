@@ -438,10 +438,12 @@ struct FlowLayout: Layout {
         var x: CGFloat = 0
         var y: CGFloat = 0
         var rowHeight: CGFloat = 0
+        var widestRow: CGFloat = 0  // Track widest row for parents that need intrinsic width
 
         for subview in subviews {
             let size = subview.sizeThatFits(.unspecified)
             if x + size.width > maxWidth, x > 0 {
+                widestRow = max(widestRow, x - spacing)
                 x = 0
                 y += rowHeight + spacing
                 rowHeight = 0
@@ -450,7 +452,10 @@ struct FlowLayout: Layout {
             rowHeight = max(rowHeight, size.height)
             x += size.width + spacing
         }
+        widestRow = max(widestRow, x - spacing)
 
-        return (CGSize(width: maxWidth, height: y + rowHeight), positions)
+        // Clamp width when proposal is unspecified — never return .infinity to parent
+        let reportedWidth = maxWidth.isFinite ? maxWidth : max(widestRow, 0)
+        return (CGSize(width: reportedWidth, height: y + rowHeight), positions)
     }
 }

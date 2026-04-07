@@ -91,8 +91,12 @@ final class Download {
         self.dateCreated = Date()
     }
 
+    /// Unit separator (U+001F) — ASCII control char that yt-dlp tags cannot contain,
+    /// so joining/splitting is collision-safe even for tags that contain commas.
+    static let tagSeparator: Character = "\u{1F}"
+
     var tagList: [String] {
-        tags?.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) } ?? []
+        tags?.split(separator: Self.tagSeparator).map(String.init) ?? []
     }
 
     var downloadStatus: DownloadStatus {
