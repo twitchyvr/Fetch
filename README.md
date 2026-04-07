@@ -6,7 +6,7 @@
 
 [![Download](https://img.shields.io/github/v/release/twitchyvr/Fetch?label=Download&color=blue)](https://github.com/twitchyvr/Fetch/releases/latest)
 
-**[Download DMG](https://github.com/twitchyvr/Fetch/releases/latest/download/Fetch-v0.2.0-macOS.dmg)** | **[Website](https://twitchyvr.github.io/Fetch/)** | **[Wiki](https://github.com/twitchyvr/Fetch/wiki)** | **[Changelog](CHANGELOG.md)**
+**[Download Beta DMG (v0.2.1-beta.1)](https://github.com/twitchyvr/Fetch/releases/download/v0.2.1-beta.1/Fetch-v0.2.1-beta.1-macOS.dmg)** | **[Website](https://twitchyvr.github.io/Fetch/)** | **[Wiki](https://github.com/twitchyvr/Fetch/wiki)** | **[Changelog](CHANGELOG.md)**
 
 A native macOS frontend for [yt-dlp](https://github.com/yt-dlp/yt-dlp), built with SwiftUI.
 
