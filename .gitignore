@@ -29,3 +29,4 @@ build/
 fwid
 release-build/
 *.dmg
+.claude
