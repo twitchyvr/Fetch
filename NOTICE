@@ -1,0 +1,18 @@
+Fetch
+Copyright (C) 2026 Matt Rogers
+
+This program is licensed under the GNU Affero General Public License v3.0
+or later. See LICENSE for the full license text.
+
+Fetch wraps the yt-dlp command-line tool at runtime. yt-dlp is not bundled
+with Fetch and is licensed separately under the Unlicense. See:
+https://github.com/yt-dlp/yt-dlp/blob/master/LICENSE
+
+Fetch wraps the ffmpeg command-line tool at runtime. ffmpeg is not bundled
+with Fetch and is licensed separately under LGPL v2.1 (with GPL v2 options
+for some components). See:
+https://ffmpeg.org/legal.html
+
+Neither yt-dlp nor ffmpeg are linked into the Fetch binary. They are
+invoked as subprocesses via the macOS Process API, with the user
+installing them independently via Homebrew or similar.
