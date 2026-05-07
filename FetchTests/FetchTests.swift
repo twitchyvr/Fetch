@@ -494,6 +494,60 @@ struct SecurityTests {
     }
 }
 
+@Suite("Warning Classifier")
+struct WarningClassifierTests {
+    @Test("Subtitle failure recognised")
+    func subtitleFailure() {
+        let result = YTDLPError.classifyWarning(line: "WARNING: Some subtitles couldn't be downloaded")
+        #expect(result?.category == .subtitle)
+        #expect(result?.humanMessage.contains("subtitle") ?? false)
+    }
+
+    @Test("Thumbnail embed failure recognised")
+    func thumbnailFailure() {
+        let result = YTDLPError.classifyWarning(line: "WARNING: Unable to embed thumbnail")
+        #expect(result?.category == .thumbnail)
+    }
+
+    @Test("Format fallback chatter is ignored as noise")
+    func formatFallbackIgnored() {
+        let result = YTDLPError.classifyWarning(line: "Falling back to alternative format")
+        #expect(result == nil)
+    }
+
+    @Test("Unknown WARNING prefix categorised as other")
+    func unknownWarningIsOther() {
+        let result = YTDLPError.classifyWarning(line: "WARNING: Unknown thing happened")
+        #expect(result?.category == .other)
+    }
+
+    @Test("Lines without WARNING prefix produce no warning")
+    func nonWarningLineIgnored() {
+        let result = YTDLPError.classifyWarning(line: "[download] 100% of 34.7MiB")
+        #expect(result == nil)
+    }
+
+    @Test("Sanitised humanMessage strips absolute paths")
+    func sanitiseStripsPaths() {
+        let result = YTDLPError.classifyWarning(line: "WARNING: Could not write to /Users/secret/Downloads/foo.mp4")
+        #expect(result != nil)
+        #expect(!(result?.humanMessage.contains("/Users/secret") ?? true))
+        #expect(result?.humanMessage.contains("[path]") == true)
+    }
+
+    @Test("URL is stripped before path regex consumes its host")
+    func urlStrippedBeforePath() {
+        let result = YTDLPError.classifyWarning(
+            line: "WARNING: Unable to fetch thumbnail from https://i.ytimg.com/vi/abc/hq720.jpg"
+        )
+        #expect(result?.category == .thumbnail)
+        // The host+path portion of the URL must be replaced with [url], NOT [path].
+        #expect(result?.humanMessage.contains("[url]") == true)
+        #expect(!(result?.humanMessage.contains("ytimg") ?? true))
+        #expect(!(result?.humanMessage.contains("https:[path]") ?? true))
+    }
+}
+
 @Suite("Warning Types")
 struct WarningTypesTests {
     @Test("Warning categories are stable raw values")

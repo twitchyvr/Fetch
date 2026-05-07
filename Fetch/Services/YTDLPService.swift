@@ -548,6 +548,64 @@ enum YTDLPError: LocalizedError {
         // --- Default: never echo raw stderr ---
         return "yt-dlp couldn't process this video. Try a different URL or update yt-dlp."
     }
+
+    /// Classifies a single stderr line as a `Warning` if it represents a non-fatal issue.
+    /// Returns nil for noise (format fallback chatter) or non-WARNING lines.
+    /// All `humanMessage` text is path/URL/host-stripped — safe for direct UI display.
+    static func classifyWarning(line: String) -> Warning? {
+        let trimmed = line.trimmingCharacters(in: .whitespaces)
+
+        // Noise filter: yt-dlp does this routinely, not actionable.
+        if trimmed.localizedCaseInsensitiveContains("falling back to alternative format") {
+            return nil
+        }
+
+        // Only WARNING-prefixed lines are surfaced.
+        guard trimmed.hasPrefix("WARNING:") else { return nil }
+
+        let body = String(trimmed.dropFirst("WARNING:".count)).trimmingCharacters(in: .whitespaces)
+        let lower = body.lowercased()
+        let sanitised = stripSensitive(body)
+
+        // Order matters: check more specific categories before more general ones.
+        // A line like "postprocessor failed to embed thumbnail" matches both
+        // thumbnail and postProcessor; the thumbnail signal is more user-meaningful.
+        if lower.contains("subtitle") {
+            return Warning(category: .subtitle, humanMessage: sanitised)
+        }
+        if lower.contains("thumbnail") {
+            return Warning(category: .thumbnail, humanMessage: sanitised)
+        }
+        if lower.contains("metadata") || lower.contains("info.json") {
+            return Warning(category: .metadata, humanMessage: sanitised)
+        }
+        if lower.contains("postprocessor") || lower.contains("ffmpeg") || lower.contains("post-process") {
+            return Warning(category: .postProcessing, humanMessage: sanitised)
+        }
+        return Warning(category: .other, humanMessage: sanitised)
+    }
+
+    /// Strips absolute Unix paths and http/https URLs from a stderr line so the
+    /// resulting message is safe for direct UI display. Note: bare hostnames
+    /// (e.g. "proxy.corp.internal") are NOT stripped — extending to hostnames
+    /// would risk false positives on dotted identifiers in technical text.
+    private static func stripSensitive(_ text: String) -> String {
+        var result = text
+        // Strip URLs first — must precede the path regex, which would otherwise
+        // consume the host+path portion of any URL and leave garbled "https:[path]".
+        result = result.replacingOccurrences(
+            of: #"https?://[^\s]+"#,
+            with: "[url]",
+            options: .regularExpression
+        )
+        // Strip remaining absolute Unix paths.
+        result = result.replacingOccurrences(
+            of: #"/[A-Za-z0-9._/-]+"#,
+            with: "[path]",
+            options: .regularExpression
+        )
+        return result
+    }
 }
 
 // MARK: - Help Text Parser
