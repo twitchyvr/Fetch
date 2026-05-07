@@ -24,7 +24,7 @@ struct Warning: Sendable, Identifiable, Hashable {
 /// DownloadOutcome — exit code is informational, not authoritative.
 struct ProcessRunResult: Sendable {
     let exitCode: Int32
-    let capturedFilepath: String?      // from --print after_move:fetch_outpath:%(filepath)q
+    let capturedFilepath: String?      // from --print after_move:fetch_outpath:%(filepath)s
     let warnings: [Warning]            // already classified + sanitised
 }
 

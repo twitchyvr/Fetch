@@ -188,11 +188,10 @@ actor YTDLPService {
         extraArgs: [String] = [],
         onProcessStart: (@Sendable (Process) -> Void)? = nil,
         progressHandler: @Sendable @escaping (DownloadProgress) -> Void
-    ) async throws -> String {
+    ) async throws -> DownloadOutcome {
         let bin = try await findBinary()
         let expandedDir = NSString(string: outputDirectory).expandingTildeInPath
 
-        // Ensure output directory exists
         try FileManager.default.createDirectory(
             atPath: expandedDir,
             withIntermediateDirectories: true
@@ -205,20 +204,17 @@ actor YTDLPService {
             "download:%(progress._percent_str)s\t%(progress._speed_str)s\t%(progress._eta_str)s\t%(progress._total_bytes_str)s\t%(progress.status)s",
             "--progress-template",
             "postprocess:POSTPROCESSING",
-            "--print", "after_move:filepath:%(filepath)s",
+            "--print", "after_move:fetch_outpath:%(filepath)s",
             "-o", "\(expandedDir)/\(outputTemplate)",
         ]
 
         if let formatId, !formatId.isEmpty {
             arguments += ["-f", formatId]
         }
-
         arguments += extraArgs
         arguments.append(url)
 
-        let result = LockedValue("")
-
-        try await streamProcess(bin, arguments: arguments, onProcessStart: onProcessStart) { line in
+        let runResult = try await streamProcess(bin, arguments: arguments, onProcessStart: onProcessStart) { line in
             if line.hasPrefix("download:") {
                 let raw = String(line.dropFirst("download:".count))
                 let parts = raw.split(separator: "\t", omittingEmptySubsequences: false).map {
@@ -239,9 +235,8 @@ actor YTDLPService {
                     percentage: 100, speed: nil, eta: nil, totalSize: nil,
                     status: .postprocessing
                 ))
-            } else if line.hasPrefix("filepath:") {
-                result.set(String(line.dropFirst("filepath:".count)))
             }
+            // Note: fetch_outpath capture is handled inside streamProcess.
         }
 
         progressHandler(DownloadProgress(
@@ -249,8 +244,11 @@ actor YTDLPService {
             status: .completed
         ))
 
-        let outputFilePath = result.get()
-        return outputFilePath.isEmpty ? "\(expandedDir)/unknown" : outputFilePath
+        return OutcomeBuilder.build(
+            exitCode: runResult.exitCode,
+            capturedFilepath: runResult.capturedFilepath,
+            warnings: runResult.warnings
+        )
     }
 
     // MARK: - Update
@@ -357,23 +355,49 @@ actor YTDLPService {
         }
     }
 
+    /// Runs a Process whose stdout+stderr stream is parsed line-by-line.
+    /// Returns a ProcessRunResult instead of throwing on non-zero exit — the
+    /// caller decides whether non-zero is failure or "succeeded with warnings".
+    /// Only throws if the Process itself fails to launch.
     private func streamProcess(
         _ path: String,
         arguments: [String],
         onProcessStart: (@Sendable (Process) -> Void)? = nil,
         lineHandler: @escaping @Sendable (String) -> Void
-    ) async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
+    ) async throws -> ProcessRunResult {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<ProcessRunResult, any Error>) in
             let process = Process()
             process.executableURL = URL(fileURLWithPath: path)
             process.arguments = arguments
 
             let outputPipe = Pipe()
             process.standardOutput = outputPipe
-            process.standardError = outputPipe // yt-dlp writes progress to stderr
+            process.standardError = outputPipe
 
             let lineBuffer = LockedValue("")
             let didResume = LockedValue(false)
+            let capturedPath = LockedValue<String?>(nil)
+            let warnings = LockedValue<[Warning]>([])
+
+            // Shared per-line processor: sentinel capture + warning classification.
+            // Called from both readabilityHandler and terminationHandler so that
+            // final fragments (lines without a trailing newline) are not silently dropped.
+            let processLine: @Sendable (String) -> Void = { line in
+                // Capture sentinel-prefixed filepath emitted via
+                // --print after_move:fetch_outpath:%(filepath)s
+                let outpathPrefix = "fetch_outpath:"
+                if line.hasPrefix(outpathPrefix) {
+                    let path = String(line.dropFirst(outpathPrefix.count)).trimmingCharacters(in: .whitespaces)
+                    if !path.isEmpty { capturedPath.set(path) }
+                }
+
+                // Classify yt-dlp WARNING: lines into structured warnings
+                if let w = YTDLPError.classifyWarning(line: line) {
+                    warnings.mutate { $0.append(w) }
+                }
+
+                lineHandler(line)
+            }
 
             outputPipe.fileHandleForReading.readabilityHandler = { handle in
                 let data = handle.availableData
@@ -382,28 +406,24 @@ actor YTDLPService {
 
                 let lines = lineBuffer.appendAndExtractLines(chunk)
                 for line in lines {
-                    lineHandler(line)
+                    processLine(line)
                 }
             }
 
             process.terminationHandler = { proc in
                 outputPipe.fileHandleForReading.readabilityHandler = nil
                 let remaining = lineBuffer.get()
-                if !remaining.isEmpty {
-                    lineHandler(remaining)
-                }
-                // Guard against double-resume if process fails to launch
+                if !remaining.isEmpty { processLine(remaining) }
+
                 guard !didResume.get() else { return }
                 didResume.set(true)
-                if proc.terminationStatus == 0 || proc.terminationStatus == 15 {
-                    // 0 = success, 15 = SIGTERM (user-initiated cancel)
-                    continuation.resume()
-                } else {
-                    continuation.resume(throwing: YTDLPError.processError(
-                        code: proc.terminationStatus,
-                        rawDetail: "yt-dlp exited with code \(proc.terminationStatus)"
-                    ))
-                }
+
+                let result = ProcessRunResult(
+                    exitCode: proc.terminationStatus,
+                    capturedFilepath: capturedPath.get(),
+                    warnings: warnings.get()
+                )
+                continuation.resume(returning: result)
             }
 
             do {
