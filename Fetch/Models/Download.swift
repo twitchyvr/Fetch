@@ -121,6 +121,7 @@ enum DownloadStatus: String, Codable, CaseIterable {
     case downloading
     case postprocessing
     case completed
+    case completedWithWarnings   // ← new
     case failed
     case cancelled
 }

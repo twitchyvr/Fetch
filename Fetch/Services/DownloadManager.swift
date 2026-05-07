@@ -225,7 +225,7 @@ final class DownloadManager {
                     extraArgs = filtered
                 }
 
-                let outputPath = try await service.download(
+                let outcome = try await service.download(
                     url: taskURL,
                     formatId: taskFormatId,
                     outputDirectory: taskOutputDir,
@@ -243,12 +243,9 @@ final class DownloadManager {
                         task.eta = progress.eta
                         task.totalSize = progress.totalSize
                         switch progress.status {
-                        case .downloading:
-                            task.status = .downloading
-                        case .postprocessing:
-                            task.status = .postprocessing
-                        case .completed:
-                            task.status = .completed
+                        case .downloading: task.status = .downloading
+                        case .postprocessing: task.status = .postprocessing
+                        case .completed: break  // Final status set from outcome below — avoids amber→green→amber flash
                         }
                     }
                 }
@@ -260,20 +257,48 @@ final class DownloadManager {
                         self?.updateDockBadge()
                         return
                     }
-                    task.status = .completed
-                    task.outputPath = outputPath
-                    task.progress = 100
-                    if let context = self?.modelContext {
-                        self?.saveToHistory(task, context: context)
+
+                    switch outcome {
+                    case .completed(let path):
+                        task.status = .completed
+                        task.outputPath = path
+                        task.warnings = []
+                        task.progress = 100
+                        if let context = self?.modelContext {
+                            self?.saveToHistory(task, context: context)
+                        }
+                        Task {
+                            await NotificationService.shared.notifyDownloadComplete(
+                                title: task.title ?? task.url,
+                                outputPath: path
+                            )
+                        }
+
+                    case .completedWithWarnings(let path, let warnings):
+                        task.status = .completedWithWarnings
+                        task.outputPath = path
+                        task.warnings = warnings
+                        task.progress = 100
+                        if let context = self?.modelContext {
+                            self?.saveToHistory(task, context: context)
+                        }
+                        Task {
+                            await NotificationService.shared.notifyDownloadComplete(
+                                title: task.title ?? task.url,
+                                outputPath: path
+                            )
+                        }
+
+                    case .failed(let message):
+                        task.status = .failed
+                        task.error = message
+
+                    case .cancelled:
+                        task.status = .cancelled
                     }
+
                     self?.processQueue()
                     self?.updateDockBadge()
-                    Task {
-                        await NotificationService.shared.notifyDownloadComplete(
-                            title: task.title ?? task.url,
-                            outputPath: outputPath
-                        )
-                    }
                 }
             } catch {
                 await MainActor.run {
@@ -333,10 +358,19 @@ final class DownloadManager {
             fileSize = attrs?[.size] as? Int64
         }
 
+        let persistedStatus: DownloadStatus
+        switch task.status {
+        case .completed: persistedStatus = .completed
+        case .completedWithWarnings: persistedStatus = .completedWithWarnings
+        case .failed: persistedStatus = .failed
+        case .cancelled: persistedStatus = .cancelled
+        default: persistedStatus = .completed   // Defensive default for transient states
+        }
+
         let download = Download(
             url: task.url,
             title: task.title ?? task.url,
-            status: .completed,
+            status: persistedStatus,
             formatId: task.formatId,
             formatDescription: task.formatDescription ?? task.formatId,
             outputPath: task.outputPath,
@@ -407,6 +441,7 @@ final class DownloadTask: Identifiable, @unchecked Sendable {
     var totalSize: String?
     var outputPath: String?
     var error: String?
+    var warnings: [Warning] = []   // ← new
     var processHandle: Process?
 
     init(
@@ -458,7 +493,7 @@ final class DownloadTask: Identifiable, @unchecked Sendable {
     }
 
     enum DownloadTaskStatus: String {
-        case scheduled, queued, downloading, postprocessing, completed, failed, cancelled
+        case scheduled, queued, downloading, postprocessing, completed, completedWithWarnings, failed, cancelled
 
         var label: String {
             switch self {
@@ -467,6 +502,7 @@ final class DownloadTask: Identifiable, @unchecked Sendable {
             case .downloading: "Downloading"
             case .postprocessing: "Processing"
             case .completed: "Completed"
+            case .completedWithWarnings: "Completed with warnings"
             case .failed: "Failed"
             case .cancelled: "Cancelled"
             }
@@ -479,6 +515,7 @@ final class DownloadTask: Identifiable, @unchecked Sendable {
             case .downloading: "arrow.down.circle"
             case .postprocessing: "gearshape.2"
             case .completed: "checkmark.circle.fill"
+            case .completedWithWarnings: "exclamationmark.triangle.fill"
             case .failed: "xmark.circle.fill"
             case .cancelled: "minus.circle"
             }
