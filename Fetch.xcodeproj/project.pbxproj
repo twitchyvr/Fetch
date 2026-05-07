@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		00B63D0E713156EBA6EB401D /* VideoDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B962AEC5AA08851E7AE59DF7 /* VideoDetailView.swift */; };
 		014950E33F4A647CEBFF455E /* AuroraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 295A40290D9CAEFC8E428801 /* AuroraView.swift */; };
+		0301F650396916F9D69574DC /* WarningDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73EFB47BA5687F0DA71919F9 /* WarningDetailSheet.swift */; };
 		03E9BC586CEEAB990482A0B2 /* FfmpegService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3F461C4CA34D76C3800B75 /* FfmpegService.swift */; };
 		1C1E80509C7308DC859BE10C /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57781422AA02941E7974B42F /* LibraryView.swift */; };
 		2165D1FD7509CD7D0B03D34B /* TipBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7827C9F6121D8E7248BFB6F0 /* TipBanner.swift */; };
@@ -76,6 +77,7 @@
 		603D7BFBF85B8544C708F910 /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardMonitor.swift; sourceTree = "<group>"; };
 		6C2623AAB3EB28232466FDDE /* FormatPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatPickerView.swift; sourceTree = "<group>"; };
 		7279D11BC6E50D9BA526614D /* SpotlightService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightService.swift; sourceTree = "<group>"; };
+		73EFB47BA5687F0DA71919F9 /* WarningDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningDetailSheet.swift; sourceTree = "<group>"; };
 		76D903C6575F2CB42F5F65E8 /* URLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLParser.swift; sourceTree = "<group>"; };
 		7827C9F6121D8E7248BFB6F0 /* TipBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipBanner.swift; sourceTree = "<group>"; };
 		7B3F461C4CA34D76C3800B75 /* FfmpegService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FfmpegService.swift; sourceTree = "<group>"; };
@@ -166,6 +168,7 @@
 				7827C9F6121D8E7248BFB6F0 /* TipBanner.swift */,
 				ECACC22DF7BE18756DACF65F /* TranscriptOptionsView.swift */,
 				B962AEC5AA08851E7AE59DF7 /* VideoDetailView.swift */,
+				73EFB47BA5687F0DA71919F9 /* WarningDetailSheet.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -323,6 +326,7 @@
 				D9A8B648A1EB467679FA8F04 /* TranscriptOptionsView.swift in Sources */,
 				3EB84EE80BE3BC1E29AA4922 /* URLParser.swift in Sources */,
 				00B63D0E713156EBA6EB401D /* VideoDetailView.swift in Sources */,
+				0301F650396916F9D69574DC /* WarningDetailSheet.swift in Sources */,
 				8A23B88E7E891442E1235D64 /* YTDLPService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -88,6 +88,20 @@ struct DownloadRowView: View {
                         .lineLimit(2)
                 }
 
+                // Warnings hint (tap row for details)
+                if task.status == .completedWithWarnings {
+                    HStack(spacing: 4) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                            .accessibilityHidden(true)
+                        Text(warningHintText)
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
+                    .help("Tap this row to see the details of each warning.")
+                }
+
                 // Metadata row
                 HStack(spacing: 6) {
                     if let extractor = task.extractor {
@@ -142,6 +156,10 @@ struct DownloadRowView: View {
         if task.status == .downloading {
             parts.append("\(Int(task.progress)) percent")
         }
+        if task.status == .completedWithWarnings, !task.warnings.isEmpty {
+            let n = task.warnings.count
+            parts.append(n == 1 ? "1 warning, double tap for details" : "\(n) warnings, double tap for details")
+        }
         if let error = task.error, task.status == .failed {
             parts.append("Error: \(error)")
         }
@@ -155,6 +173,7 @@ struct DownloadRowView: View {
         case .downloading: Color.accentColor
         case .postprocessing: .orange
         case .completed: .green
+        case .completedWithWarnings: .orange
         case .failed: .red
         case .cancelled: .secondary
         }
@@ -169,5 +188,10 @@ struct DownloadRowView: View {
             .background(statusColor.opacity(0.12), in: Capsule())
             .foregroundStyle(statusColor)
             .accessibilityHidden(true)
+    }
+
+    private var warningHintText: String {
+        let n = task.warnings.count
+        return n == 1 ? "1 warning · tap for details" : "\(n) warnings · tap for details"
     }
 }

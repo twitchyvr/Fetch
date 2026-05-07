@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DownloadQueueView: View {
     @Environment(DownloadManager.self) private var manager
+    @State private var inspectedTask: DownloadTask?
 
     var body: some View {
         Group {
@@ -19,12 +20,21 @@ struct DownloadQueueView: View {
                 List {
                     ForEach(manager.activeTasks) { task in
                         DownloadRowView(task: task)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                if task.status == .completedWithWarnings {
+                                    inspectedTask = task
+                                }
+                            }
                             .contextMenu {
                                 taskContextMenu(task)
                             }
                     }
                 }
                 .listStyle(.inset(alternatesRowBackgrounds: true))
+                .sheet(item: $inspectedTask) { task in
+                    WarningDetailSheet(task: task)
+                }
             }
         }
         .navigationTitle("Download Queue")
@@ -35,7 +45,7 @@ struct DownloadQueueView: View {
                         manager.removeCompleted()
                     }
                     .disabled(!manager.activeTasks.contains {
-                        $0.status == .completed || $0.status == .cancelled || $0.status == .failed
+                        $0.status == .completed || $0.status == .completedWithWarnings || $0.status == .cancelled || $0.status == .failed
                     })
 
                     Button("Cancel All", role: .destructive) {
