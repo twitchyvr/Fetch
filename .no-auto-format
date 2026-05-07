@@ -1,0 +1,15 @@
+# Opt-out marker for ~/.claude/hooks/scripts/auto-format.py.
+#
+# This file's presence tells the global PostToolUse auto-format hook to skip
+# every file under this directory tree.
+#
+# Why: swift-format's engine-level canonicalizations (guard-clause alignment,
+# multi-line argument paren-alignment, multi-line string body indentation,
+# binary-operator spacing, if/switch-expression layout) have no config knobs.
+# The Fetch codebase predates the formatter and uses Xcode-style 4-space +
+# 6-space hanging-paren alignment that swift-format wants to rewrite.
+#
+# We rejected the "reformat the codebase" path (would pollute git blame on
+# 21 files) and the "config-only" path (proven impossible — see
+# docs/superpowers/specs/2026-05-06-download-success-oracle-design.md
+# decision log). The opt-out preserves the existing style.
