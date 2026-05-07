@@ -171,7 +171,12 @@ final class DownloadManager {
     }
 
     func removeCompleted() {
-        activeTasks.removeAll { $0.status == .completed || $0.status == .cancelled || $0.status == .failed }
+        activeTasks.removeAll {
+            $0.status == .completed
+                || $0.status == .completedWithWarnings
+                || $0.status == .cancelled
+                || $0.status == .failed
+        }
         updateDockBadge()
     }
 
@@ -181,6 +186,7 @@ final class DownloadManager {
         task.speed = nil
         task.eta = nil
         task.error = nil
+        task.warnings = []
         processQueue()
     }
 

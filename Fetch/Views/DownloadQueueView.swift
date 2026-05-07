@@ -58,7 +58,7 @@ struct DownloadQueueView: View {
 
     @ViewBuilder
     private func taskContextMenu(_ task: DownloadTask) -> some View {
-        if task.status == .completed, let path = task.outputPath {
+        if (task.status == .completed || task.status == .completedWithWarnings), let path = task.outputPath {
             Button("Show in Finder") {
                 NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
             }

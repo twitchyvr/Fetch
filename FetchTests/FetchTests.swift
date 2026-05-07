@@ -698,3 +698,53 @@ struct OutcomeBuilderTests {
         return url
     }
 }
+
+// MARK: - YT-DLP Integration Tests
+
+@Suite("YT-DLP Integration")
+struct YTDLPIntegrationTests {
+    /// Tier-2 integration test (real Process spawn). Skips cleanly when
+    /// yt-dlp isn't installed on the test machine.
+    ///
+    /// This test makes a real network call to YouTube using `--simulate`
+    /// so no actual file is written. It asserts the outcome is either
+    /// `.completed` or `.completedWithWarnings` — never `.failed` or
+    /// `.cancelled`. If yt-dlp is not on PATH, the test returns early
+    /// (silent skip). To skip network-dependent tests in CI without
+    /// yt-dlp, simply don't install yt-dlp in the build environment.
+    @Test("Real yt-dlp --simulate against a stable URL succeeds")
+    func realYTDLPDryRun() async throws {
+        // Skip if yt-dlp isn't on PATH.
+        let service = YTDLPService()
+        guard let _ = try? await service.findBinary() else {
+            // No yt-dlp installed — silently skip.
+            return
+        }
+
+        let tmpDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("fetch-integration-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: tmpDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmpDir) }
+
+        // Use --simulate so no actual download happens. Result outcome
+        // should still be sensible — either .completed (no captured
+        // filepath since nothing was written) or .completedWithWarnings.
+        // We assert it is NOT .failed and NOT .cancelled.
+        let outcome = try await service.download(
+            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            formatId: nil,
+            outputDirectory: tmpDir.path,
+            extraArgs: ["--simulate", "--no-warnings", "--quiet"],
+            progressHandler: { _ in }
+        )
+
+        switch outcome {
+        case .completed, .completedWithWarnings:
+            break  // Either is acceptable.
+        case .failed(let message):
+            Issue.record("Real yt-dlp dry-run unexpectedly failed: \(message)")
+        case .cancelled:
+            Issue.record("Real yt-dlp dry-run unexpectedly cancelled")
+        }
+    }
+}

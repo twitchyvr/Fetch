@@ -224,7 +224,15 @@ struct HistoryRowView: View {
         }
         .padding(.vertical, 6)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(download.title), \(download.extractor ?? ""), \(download.formattedDuration ?? "")\(fileExists ? "" : ", file missing")")
+        .accessibilityLabel(
+            [
+                download.title,
+                download.extractor ?? "",
+                download.formattedDuration ?? "",
+                download.downloadStatus == .completedWithWarnings ? "completed with warnings" : "",
+                fileExists ? "" : "file missing"
+            ].filter { !$0.isEmpty }.joined(separator: ", ")
+        )
         .task {
             // Check file existence on background thread to avoid scroll jank
             let path = download.outputPath
