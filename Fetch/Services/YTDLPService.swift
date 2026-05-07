@@ -631,3 +631,23 @@ extension LockedValue where T == String {
         return lines
     }
 }
+
+// MARK: - Download Outcome Types
+
+enum WarningCategory: String, Sendable, Hashable {
+    case subtitle, thumbnail, postProcessing, metadata, other
+}
+
+struct Warning: Sendable, Identifiable, Hashable {
+    let id: UUID
+    let category: WarningCategory
+    let humanMessage: String
+    let timestamp: Date
+
+    init(category: WarningCategory, humanMessage: String, timestamp: Date = Date()) {
+        self.id = UUID()
+        self.category = category
+        self.humanMessage = humanMessage
+        self.timestamp = timestamp
+    }
+}

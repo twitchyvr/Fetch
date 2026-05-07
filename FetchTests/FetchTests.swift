@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import Fetch
 
@@ -490,5 +491,32 @@ struct SecurityTests {
         #expect(safe.contains("corrupt") || safe.contains("supported"))
         #expect(!safe.contains("0x148e042e0"))
         #expect(!safe.contains("moov atom"))
+    }
+}
+
+@Suite("Warning Types")
+struct WarningTypesTests {
+    @Test("Warning categories are stable raw values")
+    func warningCategoryRawValues() {
+        #expect(WarningCategory.subtitle.rawValue == "subtitle")
+        #expect(WarningCategory.thumbnail.rawValue == "thumbnail")
+        #expect(WarningCategory.postProcessing.rawValue == "postProcessing")
+        #expect(WarningCategory.metadata.rawValue == "metadata")
+        #expect(WarningCategory.other.rawValue == "other")
+    }
+
+    @Test("Warning struct is constructible and identifiable")
+    func warningConstruction() {
+        let w = Warning(category: .subtitle, humanMessage: "fr subtitle missing")
+        #expect(w.category == .subtitle)
+        #expect(w.humanMessage == "fr subtitle missing")
+        #expect(w.timestamp <= Date())
+    }
+
+    @Test("Two warnings with the same content have different IDs")
+    func warningsHaveUniqueIDs() {
+        let a = Warning(category: .other, humanMessage: "x")
+        let b = Warning(category: .other, humanMessage: "x")
+        #expect(a.id != b.id)
     }
 }
