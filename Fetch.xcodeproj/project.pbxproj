@@ -20,6 +20,7 @@
 		56551A7C863E9ADC6554DA3D /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9A73C0BB961790EBB0D9B3 /* DesignSystem.swift */; };
 		5A406E85567E73307125E9D7 /* AdvancedOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F344B11A58209EF5146E00C /* AdvancedOptionsView.swift */; };
 		5F89860AE5866DDA04D7D767 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE17EB2ADCBD3436D999E2DC /* HistoryView.swift */; };
+		627C907CC71EF7893E13F3A7 /* DownloadOutcome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 567309DEFF9C2680ED06273F /* DownloadOutcome.swift */; };
 		68DACE1689807265899B90B1 /* SpotlightService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7279D11BC6E50D9BA526614D /* SpotlightService.swift */; };
 		77A54975BD430DB4BB3E14AA /* FetchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4BE44D5F65BC39A95ED47F /* FetchTests.swift */; };
 		782C0E06D94E3E88CB598E15 /* Preset.swift in Sources */ = {isa = PBXBuildFile; fileRef = D793FA63DCCCCC5C1490FB6F /* Preset.swift */; };
@@ -70,6 +71,7 @@
 		3EA8633828937CB26FFECA19 /* Fetch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Fetch.entitlements; sourceTree = "<group>"; };
 		3F344B11A58209EF5146E00C /* AdvancedOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedOptionsView.swift; sourceTree = "<group>"; };
 		4D5AD7256382F628128A1A8F /* FetchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchApp.swift; sourceTree = "<group>"; };
+		567309DEFF9C2680ED06273F /* DownloadOutcome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadOutcome.swift; sourceTree = "<group>"; };
 		57781422AA02941E7974B42F /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		603D7BFBF85B8544C708F910 /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardMonitor.swift; sourceTree = "<group>"; };
 		6C2623AAB3EB28232466FDDE /* FormatPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatPickerView.swift; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 				C946C5589F74BF7E12EE6610 /* AppIntentsProvider.swift */,
 				603D7BFBF85B8544C708F910 /* ClipboardMonitor.swift */,
 				2CC7AD15C637CADA0824F35E /* DownloadManager.swift */,
+				567309DEFF9C2680ED06273F /* DownloadOutcome.swift */,
 				7B3F461C4CA34D76C3800B75 /* FfmpegService.swift */,
 				B2015C2DFB9042CD95C78E28 /* NotificationService.swift */,
 				7279D11BC6E50D9BA526614D /* SpotlightService.swift */,
@@ -295,6 +298,7 @@
 				56551A7C863E9ADC6554DA3D /* DesignSystem.swift in Sources */,
 				4E4407DB8D0EFC532B5E1B05 /* Download.swift in Sources */,
 				7AA6B1CEF42D4B149257F77C /* DownloadManager.swift in Sources */,
+				627C907CC71EF7893E13F3A7 /* DownloadOutcome.swift in Sources */,
 				BF4978831B551D7016E5DF7B /* DownloadQueueView.swift in Sources */,
 				3493B290393BF124FD3FCD9F /* DownloadRowView.swift in Sources */,
 				FF6DB5DC57BEBC7374424ED4 /* FetchApp.swift in Sources */,
