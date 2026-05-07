@@ -5,7 +5,7 @@ import UniformTypeIdentifiers
 struct LibraryView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(
-        filter: #Predicate<Download> { $0.status == "completed" },
+        filter: #Predicate<Download> { $0.status == "completed" || $0.status == "completedWithWarnings" },
         sort: \Download.dateCreated,
         order: .reverse
     ) private var downloads: [Download]
@@ -424,6 +424,13 @@ struct LibraryRowView: View {
                             .foregroundStyle(.secondary)
                     }
 
+                    if download.downloadStatus == .completedWithWarnings {
+                        Label("Warnings", systemImage: "exclamationmark.triangle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                            .help("Completed with non-fatal warnings during processing")
+                    }
+
                     if !fileExists {
                         Label("File missing", systemImage: "exclamationmark.triangle.fill")
                             .font(.caption)
@@ -491,6 +498,7 @@ struct LibraryRowView: View {
         if let extractor = download.extractor { parts.append(extractor) }
         if let duration = download.formattedDuration { parts.append(duration) }
         if let size = download.formattedFileSize { parts.append(size) }
+        if download.downloadStatus == .completedWithWarnings { parts.append("completed with warnings") }
         if !fileExists { parts.append("file missing") }
         return parts.joined(separator: ", ")
     }
@@ -537,6 +545,15 @@ struct LibraryGridItemView: View {
                                 .foregroundStyle(.orange)
                                 .font(.title3)
                         }
+                }
+            }
+            .overlay(alignment: .topTrailing) {
+                if download.downloadStatus == .completedWithWarnings {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.orange)
+                        .padding(Design.Spacing.xs)
+                        .help("Completed with non-fatal warnings during processing")
                 }
             }
 
@@ -588,6 +605,7 @@ struct LibraryGridItemView: View {
         var parts = [download.title]
         if let extractor = download.extractor { parts.append(extractor) }
         if let duration = download.formattedDuration { parts.append(duration) }
+        if download.downloadStatus == .completedWithWarnings { parts.append("completed with warnings") }
         if !fileExists { parts.append("file missing") }
         return parts.joined(separator: ", ")
     }

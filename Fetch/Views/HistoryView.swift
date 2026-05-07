@@ -130,9 +130,16 @@ struct HistoryRowView: View {
                     RoundedRectangle(cornerRadius: 6)
                         .fill(.quaternary)
                         .overlay {
-                            Image(systemName: download.downloadStatus == .completed ? "checkmark" : "xmark")
-                                .font(.caption)
-                                .foregroundStyle(.tertiary)
+                            Group {
+                                if download.downloadStatus == .completedWithWarnings {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundStyle(.orange)
+                                } else {
+                                    Image(systemName: download.downloadStatus == .completed ? "checkmark" : "xmark")
+                                        .foregroundStyle(.tertiary)
+                                }
+                            }
+                            .font(.caption)
                         }
                 }
                 .frame(width: 56, height: 34)
@@ -148,11 +155,24 @@ struct HistoryRowView: View {
                     }
                 }
             } else {
-                Image(systemName: download.downloadStatus == .completed ? "checkmark.circle.fill" : "xmark.circle.fill")
-                    .foregroundStyle(download.downloadStatus == .completed ? .green : .red)
-                    .font(.title3)
-                    .frame(width: 56)
-                    .accessibilityHidden(true)
+                Image(systemName: {
+                    switch download.downloadStatus {
+                    case .completed: "checkmark.circle.fill"
+                    case .completedWithWarnings: "exclamationmark.triangle.fill"
+                    default: "xmark.circle.fill"
+                    }
+                }())
+                .foregroundStyle({
+                    switch download.downloadStatus {
+                    case .completed: Color.green
+                    case .completedWithWarnings: Color.orange
+                    default: Color.red
+                    }
+                }())
+                .font(.title3)
+                .frame(width: 56)
+                .accessibilityHidden(true)
+                .help(download.downloadStatus == .completedWithWarnings ? "Completed with non-fatal warnings during processing" : "")
             }
 
             // Content
