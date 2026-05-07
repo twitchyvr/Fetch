@@ -574,3 +574,127 @@ struct WarningTypesTests {
         #expect(a.id != b.id)
     }
 }
+
+@Suite("Outcome Builder")
+struct OutcomeBuilderTests {
+    @Test("Exit 0, file present, no warnings → completed")
+    func exit0FilePresentNoWarnings() throws {
+        let tmp = try makeTempFile(name: "ok.mp4")
+        defer { try? FileManager.default.removeItem(at: tmp) }
+
+        let outcome = OutcomeBuilder.build(
+            exitCode: 0,
+            capturedFilepath: tmp.path,
+            warnings: []
+        )
+
+        guard case .completed(let path) = outcome else {
+            Issue.record("Expected .completed, got \(outcome)")
+            return
+        }
+        #expect(path == tmp.path)
+    }
+
+    @Test("Exit 0, file present, warnings → completedWithWarnings")
+    func exit0FilePresentWithWarnings() throws {
+        let tmp = try makeTempFile(name: "warn.mp4")
+        defer { try? FileManager.default.removeItem(at: tmp) }
+
+        let warning = Warning(category: .subtitle, humanMessage: "fr failed")
+        let outcome = OutcomeBuilder.build(
+            exitCode: 0,
+            capturedFilepath: tmp.path,
+            warnings: [warning]
+        )
+
+        guard case .completedWithWarnings(let path, let warnings) = outcome else {
+            Issue.record("Expected .completedWithWarnings, got \(outcome)")
+            return
+        }
+        #expect(path == tmp.path)
+        #expect(warnings.count == 1)
+        #expect(warnings.first?.category == .subtitle)
+    }
+
+    /// Regression test for the screenshot bug: yt-dlp exited non-zero,
+    /// the file is on disk, stderr produced no WARNING: lines.
+    /// OutcomeBuilder must SYNTHESISE a warning so the user is informed
+    /// something was off — but the status is .completedWithWarnings, NOT .failed.
+    @Test("Exit ≠ 0, file present, empty stderr → completedWithWarnings (synthesised)")
+    func regression_exit1FilePresentSynthesisesWarning() throws {
+        let tmp = try makeTempFile(name: "screenshot-bug.mp4")
+        defer { try? FileManager.default.removeItem(at: tmp) }
+
+        let outcome = OutcomeBuilder.build(
+            exitCode: 1,
+            capturedFilepath: tmp.path,
+            warnings: []
+        )
+
+        guard case .completedWithWarnings(let path, let warnings) = outcome else {
+            Issue.record("Expected .completedWithWarnings (regression test), got \(outcome)")
+            return
+        }
+        #expect(path == tmp.path)
+        #expect(warnings.count == 1)
+        #expect(warnings.first?.category == .other)
+        #expect(warnings.first?.humanMessage == "yt-dlp reported errors but the file is present.")
+    }
+
+    @Test("Exit ≠ 0, file missing → failed")
+    func exit1FileMissing() {
+        let outcome = OutcomeBuilder.build(
+            exitCode: 1,
+            capturedFilepath: "/tmp/does-not-exist-\(UUID().uuidString).mp4",
+            warnings: []
+        )
+
+        guard case .failed(let message) = outcome else {
+            Issue.record("Expected .failed, got \(outcome)")
+            return
+        }
+        #expect(!message.isEmpty)
+    }
+
+    @Test("Exit 15 → cancelled regardless of file state")
+    func exit15Cancelled() {
+        // No temp file: cancellation must be unconditional, returned BEFORE
+        // any file existence check. Pass a non-existent path to prove the point.
+        let outcome = OutcomeBuilder.build(
+            exitCode: 15,
+            capturedFilepath: "/tmp/this-path-should-never-be-checked-\(UUID().uuidString).mp4",
+            warnings: []
+        )
+
+        guard case .cancelled = outcome else {
+            Issue.record("Expected .cancelled, got \(outcome)")
+            return
+        }
+    }
+
+    @Test("Exit 0, no captured filepath → completed (legacy fallback)")
+    func exit0NoFilepathLegacy() {
+        let outcome = OutcomeBuilder.build(
+            exitCode: 0,
+            capturedFilepath: nil,
+            warnings: []
+        )
+
+        guard case .completed(let path) = outcome else {
+            Issue.record("Expected .completed (legacy), got \(outcome)")
+            return
+        }
+        #expect(path.isEmpty)
+    }
+
+    // MARK: helpers
+
+    private func makeTempFile(name: String) throws -> URL {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("fetch-tests-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let url = dir.appendingPathComponent(name)
+        try Data("test".utf8).write(to: url)
+        return url
+    }
+}
