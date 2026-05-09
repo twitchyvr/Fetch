@@ -70,6 +70,7 @@ Fetch/
 ## Key Patterns — READ BEFORE CODING
 
 ### Concurrency Model
+
 - `YTDLPService` is an **actor**. All methods are `async`. Call with `await`.
 - `DownloadManager` is `@Observable @MainActor`. It's the bridge between the actor and SwiftUI.
 - `DownloadTask` is `@Observable @unchecked Sendable` — transient in-memory state during a download.
@@ -77,6 +78,7 @@ Fetch/
 - Use `LockedValue<T>` (bottom of YTDLPService.swift) for any mutable state captured by `Process` I/O closures. Never use bare `var` in `readabilityHandler` or `terminationHandler` closures.
 
 ### yt-dlp Integration (the core value prop)
+
 - **Format discovery:** `yt-dlp --dump-json --no-download <url>` returns all formats per-URL. Parsed into `MediaInfo` + `[FormatOption]`.
 - **Progress tracking:** `--progress-template` with tab-separated fields, parsed line-by-line via `streamProcess()`.
 - **Option discovery:** `yt-dlp --help` parsed at launch into `[OptionCategory]` for dynamic settings UI.
@@ -85,17 +87,20 @@ Fetch/
 - **Never hardcode** format IDs, resolutions, site names, or CLI flags. Always discover at runtime.
 
 ### Adding a New View
+
 1. Create `Fetch/Views/MyNewView.swift`
 2. Add a case to `SidebarSection` enum in `ContentView.swift`
 3. Add the case to the `switch` in `ContentView.body`
 4. Run `xcodegen generate` to update the .xcodeproj
 
 ### Adding a New Model
+
 1. Create `Fetch/Models/MyModel.swift` with `@Model`
 2. Add it to the `modelContainer(for:)` call in `FetchApp.swift`
 3. Run `xcodegen generate`
 
 ### SwiftData Gotchas
+
 - `@Model` classes are NOT `Sendable`. Don't pass them across actor boundaries.
 - Store raw types (String, Int, Date) in models, not enums — use computed properties for enum wrappers (see `Download.downloadStatus`).
 - `@Query` only works in SwiftUI views, not in services.
@@ -115,7 +120,13 @@ This project uses **XcodeGen** (`project.yml` → `Fetch.xcodeproj`). The `.xcod
 
 ## Git Workflow
 
-- Default branch: `main`
-- Feature branches: `feat/<name>`, `fix/<name>`
-- Commit style: Conventional Commits (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`)
-- Always include: `Co-Authored-By: Claude <noreply@anthropic.com>`
+**Local-first.** Commit directly to `main`. Push to `origin` only when explicitly needed.
+
+- Default (and only) branch: `main`. No `feat/*` or `fix/*` branches by default — they add overhead with no payoff for a single-developer project.
+- No CI/CD reliance. The repo has no `.github/workflows/`, no Issue templates, no PR template — verification happens locally.
+- No GitHub Issue tracking for this project. Track work in-conversation or via TodoWrite, not `gh issue`.
+- Commit style: Conventional Commits (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`).
+- Co-Author trailer: `Co-Authored-By: Claude <noreply@anthropic.com>`.
+- Pre-flight before any change: `git status` clean, confirmed on `main`. After change: build, test, dogfood, commit.
+- Use git worktrees for parallel work when independent tasks can run concurrently. Worktrees are local and don't conflict with this workflow.
+- Push to `origin` only when explicitly requested. Never auto-push.
