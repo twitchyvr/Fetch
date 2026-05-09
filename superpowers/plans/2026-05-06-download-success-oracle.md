@@ -8,7 +8,7 @@
 
 **Tech Stack:** Swift 6.3 (strict concurrency), SwiftUI macOS 15+, SwiftData, Swift Testing (`@Suite`/`@Test`/`#expect`), XcodeGen.
 
-**Reference spec:** `docs/superpowers/specs/2026-05-06-download-success-oracle-design.md`
+**Reference spec:** `superpowers/specs/2026-05-06-download-success-oracle-design.md`
 
 **Workflow note:** All commits go directly to `main` per the project's local-first workflow. No feature branches, no auto-pushes to `origin`.
 
