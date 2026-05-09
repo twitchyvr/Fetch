@@ -5,15 +5,14 @@
 <h1 align="center">Fetch</h1>
 
 <p align="center">
-  <a href="https://github.com/twitchyvr/Fetch/actions/workflows/ci.yml"><img src="https://github.com/twitchyvr/Fetch/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://www.gnu.org/licenses/agpl-3.0"><img src="https://img.shields.io/badge/License-AGPL_v3-blue.svg" alt="License: AGPL v3"></a>
   <a href="https://developer.apple.com/macos/"><img src="https://img.shields.io/badge/macOS-15%2B-brightgreen" alt="macOS 15+"></a>
   <a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-6-orange" alt="Swift 6"></a>
-  <a href="https://github.com/twitchyvr/Fetch/releases/latest"><img src="https://img.shields.io/github/v/release/twitchyvr/Fetch?label=Release&color=blue&include_prereleases" alt="Latest release"></a>
+  <a href="https://github.com/twitchyvr/Fetch/releases/latest"><img src="https://img.shields.io/github/v/release/twitchyvr/Fetch?label=Release&color=blue" alt="Latest release"></a>
 </p>
 
 <p align="center">
-  <strong><a href="https://github.com/twitchyvr/Fetch/releases/download/v0.2.1-beta.1/Fetch-v0.2.1-beta.1-macOS.dmg">Download Beta DMG (v0.2.1-beta.1)</a></strong> ·
+  <strong><a href="https://github.com/twitchyvr/Fetch/releases/download/v0.3.0/Fetch-v0.3.0-macOS.dmg">Download v0.3.0 DMG</a></strong> ·
   <a href="https://twitchyvr.github.io/Fetch/">Website</a> ·
   <a href="https://github.com/twitchyvr/Fetch/wiki">Wiki</a> ·
   <a href="CHANGELOG.md">Changelog</a>

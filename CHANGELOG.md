@@ -5,6 +5,36 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-08
+
+First stable release after the `v0.2.1-beta.1` line. Notarized by Apple.
+
+The headline change is an honest download-status model: when yt-dlp succeeds in writing a video file but exits non-zero (because a subtitle language was missing, a thumbnail couldn't be embedded, or some other non-fatal issue), Fetch no longer reports the download as `Failed`. A new amber **Completed with warnings** state distinguishes "succeeded but had a side-issue" from real failure.
+
+### Added
+
+- **Three-state download status** — `Completed` (green) / `Completed with warnings` (amber) / `Failed` (red). The amber state is new, replacing the previous binary success/failure model that produced false negatives.
+- **Warning detail sheet** — tap any amber row in the queue to inspect the warnings, grouped by category (Subtitles, Thumbnail, Post-processing, Metadata, Other). Reveals the output folder in Finder and offers a "Copy log" action.
+- **Stderr warning classifier** — yt-dlp `WARNING:` lines are categorised and sanitised (paths, URLs stripped) before reaching the UI. Known noise like format-fallback chatter is filtered out.
+- **VoiceOver warning announcement** — queue, history, and library rows now read out the warning state for screen-reader users.
+
+### Fixed
+
+- **False-failure on completed downloads** — the headline bug. `streamProcess()` previously threw on any non-zero yt-dlp exit code, surfacing the generic *"yt-dlp couldn't process this video. Try a different URL or update yt-dlp"* error even when the video file was on disk. The success oracle now derives from three independent signals (captured filepath via `--print after_move:fetch_outpath:`, filesystem existence, classified warnings) rather than from exit code alone.
+- **Library hidden records** — `LibraryView`'s SwiftData query previously filtered `status == "completed"` exactly, so any historical record with the new `completedWithWarnings` status would have been silently invisible. The query now includes both states.
+
+### Changed
+
+- **`streamProcess` no longer throws on non-zero exit** — it returns a `ProcessRunResult` (exit code, captured filepath, classified warnings) and the caller decides via the new `OutcomeBuilder.build(...)`. Exit code is informational, not authoritative.
+- **`download()` returns `DownloadOutcome`** — sum type with cases `.completed(path)`, `.completedWithWarnings(path, warnings)`, `.failed(message)`, `.cancelled`. Replaces the previous bare `String` return.
+- **Print sentinel changed** — `filepath:` → `fetch_outpath:`, anchored on `hasPrefix`, to avoid collision with arbitrary stderr text containing `filepath:`.
+
+### Internal
+
+- New `Fetch/Services/DownloadOutcome.swift` carries the new types (`Warning`, `WarningCategory`, `ProcessRunResult`, `DownloadOutcome`, `OutcomeBuilder`) extracted from `YTDLPService.swift`.
+- `.no-auto-format` marker at repo root opts out of the global swift-format hook (which doesn't match the codebase's existing 4-space + Xcode-style alignment).
+- Test count: **64 tests** in 11 suites — including a regression test (`regression_exit1FilePresentSynthesisesWarning`) that fails without the fix, and a Tier-2 integration test (`testRealYTDLPDryRun`) that spawns real yt-dlp with `--simulate`.
+
 ## [0.2.1-beta.1] - 2026-04-07
 
 First beta of the v0.2.1 release. Code-signed with Developer ID. Not yet notarized — see #134.
